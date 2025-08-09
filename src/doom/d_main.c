@@ -569,7 +569,7 @@ void D_DoAdvanceDemo (void)
 	else
 	    pagetic = 170;
 	gamestate = GS_DEMOSCREEN;
-	pagename = DEH_String("TITLEPIC");
+	pagename = DEH_String("DRUGS"); // [arcade] new titlepic
 	if ( gamemode == commercial )
 	  S_StartMusic(mus_dm2ttl);
 	else
@@ -1504,6 +1504,16 @@ void D_DoomMain (void)
 
     W_CheckCorrectIWAD(doom);
 
+    // [arcade] always load arcade wad
+    {
+        if (!M_FileExists("arcade.wad"))
+        {
+            I_Error("Can't find arcade.wad");
+        }
+        printf(" adding arcade.wad\n");
+        W_AddFile("arcade.wad");
+    }
+
     // Now that we've loaded the IWAD, we can figure out what gamemission
     // we're playing and which version of Vanilla Doom we need to emulate.
     D_IdentifyVersion();
@@ -1999,4 +2009,3 @@ void D_DoomMain (void)
 
     D_DoomLoop ();  // never returns
 }
-
