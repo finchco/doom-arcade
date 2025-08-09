@@ -1307,7 +1307,8 @@ void G_DeathMatchSpawnPlayer (int playernum)
 
 //
 // G_DoReborn 
-// 
+//
+void M_ClearMenus();
 void G_DoReborn (int playernum) 
 { 
     int                             i; 
@@ -1317,6 +1318,7 @@ void G_DoReborn (int playernum)
     	// [arcade] can only reset level when there are lives remaining
     	if (--num_player_lives == 0)
     	{
+    		M_ClearMenus();
 			D_StartTitle();
     	}
     	else
