@@ -284,6 +284,14 @@ boolean D_Display (void)
     M_Drawer ();          // menu is drawn even on top of everything
     NetUpdate ();         // send out any new accumulation
 
+    // [arcade] flash PRESS START graphic any time not actually playing
+    {
+        if (((gamestate != GS_LEVEL) || demoplayback) && ((I_GetTime() & 16) == 0))
+        {
+            V_DrawPatchDirect(80, 40, W_CacheLumpName("PRSTART", PU_CACHE));
+        }
+    }
+
     return wipe;
 }
 
