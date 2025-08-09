@@ -91,10 +91,13 @@ void	G_DoCompleted (void);
 void	G_DoVictory (void); 
 void	G_DoWorldDone (void); 
 void	G_DoSaveGame (void); 
- 
+
+// [arcade] lives remaining
+extern int num_player_lives; // m_menu.c
+
 // Gamestate the last time G_Ticker was called.
 
-gamestate_t     oldgamestate; 
+gamestate_t     oldgamestate;
  
 gameaction_t    gameaction; 
 gamestate_t     gamestate; 
@@ -1299,9 +1302,6 @@ void G_DeathMatchSpawnPlayer (int playernum)
     P_SpawnPlayer (&playerstarts[playernum]); 
 } 
 
-// [arcade] number of times player can restart level before game over and return to attract
-static int player_lives_remain = 3;
-
 //
 // G_DoReborn 
 // 
@@ -1312,7 +1312,7 @@ void G_DoReborn (int playernum)
     if (!netgame)
     {
     	// [arcade] can only reset level when there are lives remaining
-    	if (--player_lives_remain == 0)
+    	if (--num_player_lives == 0)
     	{
 			D_StartTitle();
     	}
@@ -1813,10 +1813,7 @@ void G_DoNewGame (void)
     consoleplayer = 0;
     G_InitNew (d_skill, d_episode, d_map); 
     gameaction = ga_nothing;
-
-	// [arcade] reset lives
-	player_lives_remain = 3;
-} 
+}
 
 
 void

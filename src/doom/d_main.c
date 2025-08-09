@@ -159,6 +159,9 @@ void D_ProcessEvents (void)
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
 
+// [arcade] coin slot
+extern int num_coins_inserted; // m_menu.c
+
 boolean D_Display (void)
 {
     static  boolean		viewactivestate = false;
@@ -284,9 +287,14 @@ boolean D_Display (void)
     M_Drawer ();          // menu is drawn even on top of everything
     NetUpdate ();         // send out any new accumulation
 
-    // [arcade] flash PRESS START graphic any time not actually playing
+    // [arcade] flash INSERT COIN or PRESS START graphic any time not actually playing
+    if (((gamestate != GS_LEVEL) || demoplayback) && ((I_GetTime() & 16) == 0))
     {
-        if (((gamestate != GS_LEVEL) || demoplayback) && ((I_GetTime() & 16) == 0))
+        if (num_coins_inserted == 0)
+        {
+            V_DrawPatchDirect(80, 40, W_CacheLumpName("INCOIN", PU_CACHE));
+        }
+        else
         {
             V_DrawPatchDirect(80, 40, W_CacheLumpName("PRSTART", PU_CACHE));
         }

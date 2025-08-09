@@ -61,6 +61,9 @@
 
 #include "m_menu.h"
 
+// [arcade] credits and lives
+int num_coins_inserted;
+int num_player_lives;
 
 //
 // defaulted values
@@ -1652,24 +1655,43 @@ boolean M_Responder (event_t* ev)
     }
 
 	// [arcade] esc quits
+	if (key == key_menu_activate)
 	{
-		if (key == key_menu_activate)
-		{
-			I_Quit();
-		}
+		I_Quit();
 	}
 
-	// [arcade] any key when not playing will start a new game instead of showing menu
+	if ((gamestate != GS_LEVEL) || demoplayback)
 	{
-		if ((gamestate != GS_LEVEL) || demoplayback)
+		// [arcade] pressing enter starts game on hard difficulty if credits > 0
+		if (key == KEYP_ENTER && num_coins_inserted > 0)
 		{
+			num_player_lives = num_coins_inserted * 3;
+			num_coins_inserted = 0;
 			G_DeferedInitNew(sk_hard, 1, 1);
 			M_ClearMenus();
 			return true;
 		}
 
-		return false;
+		// [arcade] pressing backlslash starts game on nightmare difficulty if credits > 0
+		if (key == '\\' && num_coins_inserted > 0)
+		{
+			num_player_lives = num_coins_inserted * 3;
+			num_coins_inserted = 0;
+			G_DeferedInitNew(sk_hard, 1, 1);
+			M_ClearMenus();
+			return true;
+		}
+
+		// [arcade] pressing q will insert a coin
+		if (key == 'q')
+		{
+			S_StartSound(NULL, sfx_brssit);
+			++num_coins_inserted;
+			return true;
+		}
 	}
+
+	return false;
 
 }
 
