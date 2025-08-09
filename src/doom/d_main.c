@@ -1450,9 +1450,8 @@ void D_DoomMain (void)
     else
 #endif
     {
-        // Auto-detect the configuration dir.
-
-        M_SetConfigDir(NULL);
+        // [arcade] config files are only in cwd
+        M_SetConfigDir("./");
     }
 
     //!
