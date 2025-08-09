@@ -194,8 +194,8 @@ static void M_FinishReadThis(int choice);
 static void M_LoadSelect(int choice);
 static void M_SaveSelect(int choice);
 static void M_ReadSaveStrings(void);
-static void M_QuickSave(void);
-static void M_QuickLoad(void);
+// static void M_QuickSave(void); [arcade] unused after menus disabled
+// static void M_QuickLoad(void); [arcade] unused after menus disabled
 
 static void M_DrawMainMenu(void);
 static void M_DrawReadThis1(void);
@@ -707,7 +707,7 @@ void M_SaveGame (int choice)
 //
 //      M_QuickSave
 //
-static char tempstring[90];
+// static char tempstring[90]; [arcade] unused after menus disabled
 
 void M_QuickSaveResponse(int key)
 {
@@ -718,6 +718,7 @@ void M_QuickSaveResponse(int key)
     }
 }
 
+/* [arcade] unused after menus disabled
 void M_QuickSave(void)
 {
     if (!usergame)
@@ -741,7 +742,7 @@ void M_QuickSave(void)
                  QSPROMPT, savegamestrings[quickSaveSlot]);
     M_StartMessage(tempstring, M_QuickSaveResponse, true);
 }
-
+*/
 
 
 //
@@ -757,6 +758,7 @@ void M_QuickLoadResponse(int key)
 }
 
 
+/* [arcade] unused after menus disabled
 void M_QuickLoad(void)
 {
     if (netgame)
@@ -774,7 +776,7 @@ void M_QuickLoad(void)
                  QLPROMPT, savegamestrings[quickSaveSlot]);
     M_StartMessage(tempstring, M_QuickLoadResponse, true);
 }
-
+*/
 
 
 
@@ -1335,11 +1337,13 @@ M_WriteText
 // These keys evaluate to a "null" key in Vanilla Doom that allows weird
 // jumping in the menus. Preserve this behavior for accuracy.
 
+/* [arcade] unused after menus disabled
 static boolean IsNullKey(int key)
 {
     return key == KEY_PAUSE || key == KEY_CAPSLOCK
         || key == KEY_SCRLCK || key == KEY_NUMLOCK;
 }
+*/
 
 //
 // CONTROL PANEL
@@ -1352,7 +1356,7 @@ boolean M_Responder (event_t* ev)
 {
     int             ch;
     int             key;
-    int             i;
+    // int             i; [arcade] unused after menus disabled
     static  int     mousewait = 0;
     static  int     mousey = 0;
     static  int     lasty = 0;
@@ -1647,245 +1651,18 @@ boolean M_Responder (event_t* ev)
 	return true;
     }
 
-    // F-Keys
-    if (!menuactive)
-    {
-	if (key == key_menu_decscreen)      // Screen size down
-        {
-	    if (automapactive || chat_on)
+	// [arcade] any key when not playing will start a new game instead of showing menu
+	{
+		if ((gamestate != GS_LEVEL) || demoplayback)
+		{
+			G_DeferedInitNew(sk_hard, 1, 1);
+			M_ClearMenus();
+			return true;
+		}
+
 		return false;
-	    M_SizeDisplay(0);
-	    S_StartSound(NULL,sfx_stnmov);
-	    return true;
 	}
-        else if (key == key_menu_incscreen) // Screen size up
-        {
-	    if (automapactive || chat_on)
-		return false;
-	    M_SizeDisplay(1);
-	    S_StartSound(NULL,sfx_stnmov);
-	    return true;
-	}
-        else if (key == key_menu_help)     // Help key
-        {
-	    M_StartControlPanel ();
 
-	    if (gameversion >= exe_ultimate)
-	      currentMenu = &ReadDef2;
-	    else
-	      currentMenu = &ReadDef1;
-
-	    itemOn = 0;
-	    S_StartSound(NULL,sfx_swtchn);
-	    return true;
-	}
-        else if (key == key_menu_save)     // Save
-        {
-	    M_StartControlPanel();
-	    S_StartSound(NULL,sfx_swtchn);
-	    M_SaveGame(0);
-	    return true;
-        }
-        else if (key == key_menu_load)     // Load
-        {
-	    M_StartControlPanel();
-	    S_StartSound(NULL,sfx_swtchn);
-	    M_LoadGame(0);
-	    return true;
-        }
-        else if (key == key_menu_volume)   // Sound Volume
-        {
-	    M_StartControlPanel ();
-	    currentMenu = &SoundDef;
-	    itemOn = sfx_vol;
-	    S_StartSound(NULL,sfx_swtchn);
-	    return true;
-	}
-        else if (key == key_menu_detail)   // Detail toggle
-        {
-	    M_ChangeDetail(0);
-	    S_StartSound(NULL,sfx_swtchn);
-	    return true;
-        }
-        else if (key == key_menu_qsave)    // Quicksave
-        {
-	    S_StartSound(NULL,sfx_swtchn);
-	    M_QuickSave();
-	    return true;
-        }
-        else if (key == key_menu_endgame)  // End game
-        {
-	    S_StartSound(NULL,sfx_swtchn);
-	    M_EndGame(0);
-	    return true;
-        }
-        else if (key == key_menu_messages) // Toggle messages
-        {
-	    M_ChangeMessages(0);
-	    S_StartSound(NULL,sfx_swtchn);
-	    return true;
-        }
-        else if (key == key_menu_qload)    // Quickload
-        {
-	    S_StartSound(NULL,sfx_swtchn);
-	    M_QuickLoad();
-	    return true;
-        }
-        else if (key == key_menu_quit)     // Quit DOOM
-        {
-	    S_StartSound(NULL,sfx_swtchn);
-	    M_QuitDOOM(0);
-	    return true;
-        }
-        else if (key == key_menu_gamma)    // gamma toggle
-        {
-	    usegamma++;
-	    if (usegamma > 4)
-		usegamma = 0;
-	    players[consoleplayer].message = DEH_String(gammamsg[usegamma]);
-            I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
-	    return true;
-	}
-    }
-
-    // Pop-up menu?
-    if (!menuactive)
-    {
-	if (key == key_menu_activate)
-	{
-	    M_StartControlPanel ();
-	    S_StartSound(NULL,sfx_swtchn);
-	    return true;
-	}
-	return false;
-    }
-
-    // Keys usable within menu
-
-    if (key == key_menu_down)
-    {
-        // Move down to next item
-
-        do
-	{
-	    if (itemOn+1 > currentMenu->numitems-1)
-		itemOn = 0;
-	    else itemOn++;
-	    S_StartSound(NULL,sfx_pstop);
-	} while(currentMenu->menuitems[itemOn].status==-1);
-
-	return true;
-    }
-    else if (key == key_menu_up)
-    {
-        // Move back up to previous item
-
-	do
-	{
-	    if (!itemOn)
-		itemOn = currentMenu->numitems-1;
-	    else itemOn--;
-	    S_StartSound(NULL,sfx_pstop);
-	} while(currentMenu->menuitems[itemOn].status==-1);
-
-	return true;
-    }
-    else if (key == key_menu_left)
-    {
-        // Slide slider left
-
-	if (currentMenu->menuitems[itemOn].routine &&
-	    currentMenu->menuitems[itemOn].status == 2)
-	{
-	    S_StartSound(NULL,sfx_stnmov);
-	    currentMenu->menuitems[itemOn].routine(0);
-	}
-	return true;
-    }
-    else if (key == key_menu_right)
-    {
-        // Slide slider right
-
-	if (currentMenu->menuitems[itemOn].routine &&
-	    currentMenu->menuitems[itemOn].status == 2)
-	{
-	    S_StartSound(NULL,sfx_stnmov);
-	    currentMenu->menuitems[itemOn].routine(1);
-	}
-	return true;
-    }
-    else if (key == key_menu_forward)
-    {
-        // Activate menu item
-
-	if (currentMenu->menuitems[itemOn].routine &&
-	    currentMenu->menuitems[itemOn].status)
-	{
-	    currentMenu->lastOn = itemOn;
-	    if (currentMenu->menuitems[itemOn].status == 2)
-	    {
-		currentMenu->menuitems[itemOn].routine(1);      // right arrow
-		S_StartSound(NULL,sfx_stnmov);
-	    }
-	    else
-	    {
-		currentMenu->menuitems[itemOn].routine(itemOn);
-		S_StartSound(NULL,sfx_pistol);
-	    }
-	}
-	return true;
-    }
-    else if (key == key_menu_activate)
-    {
-        // Deactivate menu
-
-	currentMenu->lastOn = itemOn;
-	M_ClearMenus ();
-	S_StartSound(NULL,sfx_swtchx);
-	return true;
-    }
-    else if (key == key_menu_back)
-    {
-        // Go back to previous menu
-
-	currentMenu->lastOn = itemOn;
-	if (currentMenu->prevMenu)
-	{
-	    currentMenu = currentMenu->prevMenu;
-	    itemOn = currentMenu->lastOn;
-	    S_StartSound(NULL,sfx_swtchn);
-	}
-	return true;
-    }
-
-    // Keyboard shortcut?
-    // Vanilla Doom has a weird behavior where it jumps to the scroll bars
-    // when the certain keys are pressed, so emulate this.
-
-    else if (ch != 0 || IsNullKey(key))
-    {
-	for (i = itemOn+1;i < currentMenu->numitems;i++)
-        {
-	    if (currentMenu->menuitems[i].alphaKey == ch)
-	    {
-		itemOn = i;
-		S_StartSound(NULL,sfx_pstop);
-		return true;
-	    }
-        }
-
-	for (i = 0;i <= itemOn;i++)
-        {
-	    if (currentMenu->menuitems[i].alphaKey == ch)
-	    {
-		itemOn = i;
-		S_StartSound(NULL,sfx_pstop);
-		return true;
-	    }
-        }
-    }
-
-    return false;
 }
 
 
@@ -1895,13 +1672,7 @@ boolean M_Responder (event_t* ev)
 //
 void M_StartControlPanel (void)
 {
-    // intro might call this repeatedly
-    if (menuactive)
-	return;
-    
-    menuactive = 1;
-    currentMenu = &MainDef;         // JDC
-    itemOn = currentMenu->lastOn;   // JDC
+	// [arcade] never show the menu
 }
 
 // Display OPL debug messages - hack for GENMIDI development.
@@ -2125,4 +1896,3 @@ void M_Init (void)
 
     opldev = M_CheckParm("-opldev") > 0;
 }
-
