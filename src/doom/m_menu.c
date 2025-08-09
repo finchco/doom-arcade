@@ -1651,6 +1651,14 @@ boolean M_Responder (event_t* ev)
 	return true;
     }
 
+	// [arcade] esc quits
+	{
+		if (key == key_menu_activate)
+		{
+			I_Quit();
+		}
+	}
+
 	// [arcade] any key when not playing will start a new game instead of showing menu
 	{
 		if ((gamestate != GS_LEVEL) || demoplayback)
