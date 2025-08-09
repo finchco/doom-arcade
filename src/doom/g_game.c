@@ -1299,6 +1299,9 @@ void G_DeathMatchSpawnPlayer (int playernum)
     P_SpawnPlayer (&playerstarts[playernum]); 
 } 
 
+// [arcade] number of times player can restart level before game over and return to attract
+static int player_lives_remain = 3;
+
 //
 // G_DoReborn 
 // 
@@ -1308,8 +1311,16 @@ void G_DoReborn (int playernum)
 	 
     if (!netgame)
     {
-	// reload the level from scratch
-	gameaction = ga_loadlevel;  
+    	// [arcade] can only reset level when there are lives remaining
+    	if (--player_lives_remain == 0)
+    	{
+			D_StartTitle();
+    	}
+    	else
+    	{
+    		// reload the level from scratch
+    		gameaction = ga_loadlevel;
+    	}
     }
     else 
     {
@@ -1801,7 +1812,10 @@ void G_DoNewGame (void)
     nomonsters = false;
     consoleplayer = 0;
     G_InitNew (d_skill, d_episode, d_map); 
-    gameaction = ga_nothing; 
+    gameaction = ga_nothing;
+
+	// [arcade] reset lives
+	player_lives_remain = 3;
 } 
 
 
@@ -2399,6 +2413,3 @@ boolean G_CheckDemoStatus (void)
 	 
     return false; 
 } 
- 
- 
- 
