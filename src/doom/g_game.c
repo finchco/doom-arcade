@@ -728,6 +728,9 @@ void G_DoLoadLevel (void)
     {
         players[consoleplayer].message = "Press escape to quit.";
     }
+
+	// [arcade] save checkpoint at start of map
+	G_SaveGame(0, "arcade");
 } 
 
 static void SetJoyButtons(unsigned int buttons_mask)
@@ -1318,8 +1321,8 @@ void G_DoReborn (int playernum)
     	}
     	else
     	{
-    		// reload the level from scratch
-    		gameaction = ga_loadlevel;
+    		// [arcade] load last checkpoint
+    		G_LoadGame(P_SaveGameFile(0));
     	}
     }
     else 

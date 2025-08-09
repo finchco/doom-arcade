@@ -287,8 +287,8 @@ boolean D_Display (void)
     M_Drawer ();          // menu is drawn even on top of everything
     NetUpdate ();         // send out any new accumulation
 
-    // [arcade] flash INSERT COIN or PRESS START graphic any time not actually playing
-    if (((gamestate != GS_LEVEL) || demoplayback) && ((I_GetTime() & 16) == 0))
+    // [arcade] flash INSERT COIN or PRESS START during demo playback (attract mode)
+    if (((gamestate == GS_DEMOSCREEN) || demoplayback) && ((I_GetTime() & 16) == 0))
     {
         if (num_coins_inserted == 0)
         {
