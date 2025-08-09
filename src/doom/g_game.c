@@ -235,7 +235,32 @@ int		bodyqueslot;
  
 int             vanilla_savegame_limit = 1;
 int             vanilla_demo_limit = 1;
- 
+
+// [arcade] save checkpoint
+void G_SaveArcadeCheckpoint()
+{
+	// NOTE doing this with G_SaveGame doesn't work on the first frame because
+	// it's implemented as a button press, and the player's button presses are ignored
+	// on the first frame (or something like that).
+	savegameslot = 0;
+	M_StringCopy(savedescription, "arcade", sizeof(savedescription));
+	G_DoSaveGame();
+}
+
+// [arcade] load checkpoint
+void G_LoadArcadeCheckpoint()
+{
+	G_LoadGame (P_SaveGameFile(0));
+}
+
+// [arcade] try to fix problems with wrapping tics
+void G_ResetTics()
+{
+	extern int maketic, recvtic; // d_loop.c
+	gametic = maketic = recvtic = 0;
+}
+
+
 int G_CmdChecksum (ticcmd_t* cmd) 
 { 
     size_t		i;
@@ -728,10 +753,7 @@ void G_DoLoadLevel (void)
     {
         players[consoleplayer].message = "Press escape to quit.";
     }
-
-	// [arcade] save checkpoint at start of map
-	G_SaveGame(0, "arcade");
-} 
+}
 
 static void SetJoyButtons(unsigned int buttons_mask)
 {
@@ -1308,8 +1330,8 @@ void G_DeathMatchSpawnPlayer (int playernum)
 //
 // G_DoReborn 
 //
-void M_ClearMenus();
-void G_DoReborn (int playernum) 
+void M_ClearMenus(void);
+void G_DoReborn (int playernum)
 { 
     int                             i; 
 	 
@@ -1324,7 +1346,7 @@ void G_DoReborn (int playernum)
     	else
     	{
     		// [arcade] load last checkpoint
-    		G_LoadGame(P_SaveGameFile(0));
+    		G_LoadArcadeCheckpoint();
     	}
     }
     else 
@@ -1625,8 +1647,14 @@ void G_DoWorldDone (void)
     gamemap = wminfo.next+1; 
     G_DoLoadLevel (); 
     gameaction = ga_nothing; 
-    viewactive = true; 
-} 
+    viewactive = true;
+
+	// [arcade] try to fix problems with wrapping tics
+	G_ResetTics();
+
+	// [arcade] save at start of map so it can be loaded on death
+	G_SaveArcadeCheckpoint();
+}
  
 
 
@@ -1818,6 +1846,9 @@ void G_DoNewGame (void)
     consoleplayer = 0;
     G_InitNew (d_skill, d_episode, d_map); 
     gameaction = ga_nothing;
+
+	// [arcade] save at start of map so it can be loaded on death
+	G_LoadArcadeCheckpoint();
 }
 
 
@@ -2250,6 +2281,9 @@ void G_DoPlayDemo (void)
     int i, lumpnum, episode, map;
     int demoversion;
     boolean olddemo = false;
+
+	// [arcade] try to fix problems with wrapping tics
+	G_ResetTics();
 
     lumpnum = W_GetNumForName(defdemoname);
     gameaction = ga_nothing;

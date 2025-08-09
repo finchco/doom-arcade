@@ -217,7 +217,7 @@ static void M_WriteText(int x, int y, const char *string);
 static int  M_StringWidth(const char *string);
 static int  M_StringHeight(const char *string);
 static void M_StartMessage(const char *string, void *routine, boolean input);
-static void M_ClearMenus (void);
+void M_ClearMenus (void);
 
 
 
