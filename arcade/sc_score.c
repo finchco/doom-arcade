@@ -33,7 +33,7 @@ static sc_record_t sc_default_records[SC_NUM_RECORDS] = {
 	{ "DIZZY", 0, 0 },
 };
 
-void SC_Init()
+void SC_Init( void )
 {
 	char line[128];
 	int fileversion;
@@ -77,7 +77,7 @@ void SC_Init()
 	fclose( f );
 }
 
-const sc_record_t * SC_GetHighScore()
+const sc_record_t * SC_GetHighScore( void )
 {
 	// TODO OPT
 	static sc_record_t result;
@@ -166,7 +166,7 @@ void SC_OnGetArmor( int amount )
 	//s_state.score += amount;
 }
 
-void SC_OnGetBackpack()
+void SC_OnGetBackpack( void )
 {
 	//s_state.score += 500;
 }
@@ -237,14 +237,14 @@ void SC_OnMobjKilled( mobj_t * target, mobj_t * inflictor, mobj_t * source )
 	{
 		return;
 	}
-	if ( inflictor->type == MT_BARREL ) 
+	if ( inflictor && inflictor->type == MT_BARREL )
 	{
 		points *= 2;
 	}
 	s_state.score += points;
 }
 
-void SC_OnTouchSecretSector()
+void SC_OnTouchSecretSector( void )
 {
 	//s_state.score += 1000;
 }

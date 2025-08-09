@@ -75,6 +75,8 @@
 
 #include "g_game.h"
 
+#include "../../arcade/sc_score.h"
+
 
 #define SAVEGAMESIZE	0x2c000
 
@@ -1340,6 +1342,7 @@ void G_DoReborn (int playernum)
     	// [arcade] can only reset level when there are lives remaining
     	if (--num_player_lives == 0)
     	{
+    		SC_FinalizeRecord("DMK");
     		M_ClearMenus();
 			D_StartTitle();
     	}
@@ -1654,6 +1657,7 @@ void G_DoWorldDone (void)
 
 	// [arcade] save at start of map so it can be loaded on death
 	G_SaveArcadeCheckpoint();
+	SC_OnNextMap(wminfo.maxkills, wminfo.maxitems, wminfo.maxsecret);
 }
  
 
@@ -1848,7 +1852,8 @@ void G_DoNewGame (void)
     gameaction = ga_nothing;
 
 	// [arcade] save at start of map so it can be loaded on death
-	G_LoadArcadeCheckpoint();
+	G_SaveArcadeCheckpoint();
+	SC_BeginNewRecord(d_skill == sk_nightmare);
 }
 
 

@@ -77,6 +77,8 @@
 
 #include "doom_icon.c"
 
+#include "../../arcade/sc_score.h"
+
 //
 // D-DoomLoop()
 // Not a globally visible function,
@@ -498,6 +500,9 @@ void D_DoomLoop (void)
     R_ExecuteSetViewSize();
 
     D_StartGameLoop();
+
+    // [arcade] init scores
+    SC_Init();
 
     if (testcontrols)
     {

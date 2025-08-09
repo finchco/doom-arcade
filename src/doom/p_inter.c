@@ -39,6 +39,8 @@
 
 #include "p_inter.h"
 
+#include "../../arcade/sc_score.h"
+
 
 #define BONUSADD	6
 
@@ -97,7 +99,9 @@ P_GiveAmmo
     player->ammo[ammo] += num;
 
     if (player->ammo[ammo] > player->maxammo[ammo])
-	player->ammo[ammo] = player->maxammo[ammo];
+		player->ammo[ammo] = player->maxammo[ammo];
+
+	SC_OnGetAmmo(ammo, num); // [arcade]
 
     // If non zero ammo, 
     // don't change up weapons,
@@ -206,6 +210,7 @@ P_GiveWeapon
 	gaveweapon = true;
 	player->weaponowned[weapon] = true;
 	player->pendingweapon = weapon;
+    SC_OnGetWeapon( weapon, dropped );  // [arcade]
     }
 	
     return (gaveweapon || gaveammo);
@@ -229,7 +234,7 @@ P_GiveBody
     if (player->health > MAXHEALTH)
 	player->health = MAXHEALTH;
     player->mo->health = player->health;
-	
+	SC_OnGetHealth( num ); // [arcade]
     return true;
 }
 
@@ -253,7 +258,7 @@ P_GiveArmor
 		
     player->armortype = armortype;
     player->armorpoints = hits;
-	
+	SC_OnGetArmor( hits ); // [arcade]
     return true;
 }
 
@@ -272,6 +277,7 @@ P_GiveCard
     
     player->bonuscount = BONUSADD;
     player->cards[card] = 1;
+	SC_OnGetKey( card ); // [arcade]
 }
 
 
@@ -286,6 +292,7 @@ P_GivePower
     if (power == pw_invulnerability)
     {
 	player->powers[power] = INVULNTICS;
+    SC_OnGetPowerup( power ); // [arcade]
 	return true;
     }
     
@@ -293,18 +300,21 @@ P_GivePower
     {
 	player->powers[power] = INVISTICS;
 	player->mo->flags |= MF_SHADOW;
+    SC_OnGetPowerup( power ); // [arcade]
 	return true;
     }
     
     if (power == pw_infrared)
     {
 	player->powers[power] = INFRATICS;
+    SC_OnGetPowerup( power ); // [arcade]
 	return true;
     }
     
     if (power == pw_ironfeet)
     {
 	player->powers[power] = IRONTICS;
+    SC_OnGetPowerup( power ); // [arcade]
 	return true;
     }
     
@@ -312,6 +322,7 @@ P_GivePower
     {
 	P_GiveBody (player, 100);
 	player->powers[power] = 1;
+    SC_OnGetPowerup( power ); // [arcade]
 	return true;
     }
 	
@@ -319,6 +330,7 @@ P_GivePower
 	return false;	// already got it
 		
     player->powers[power] = 1;
+    SC_OnGetPowerup( power ); // [arcade]
     return true;
 }
 
@@ -378,6 +390,7 @@ P_TouchSpecialThing
 	    player->health = deh_max_health;
 	player->mo->health = player->health;
 	player->message = DEH_String(GOTHTHBONUS);
+	SC_OnGetHealth( 1 ); // [arcade]
 	break;
 	
       case SPR_BON2:
@@ -389,6 +402,7 @@ P_TouchSpecialThing
 	if (!player->armortype)
 	    player->armortype = 1;
 	player->message = DEH_String(GOTARMBONUS);
+	SC_OnGetArmor( 1 ); // [arcade]
 	break;
 	
       case SPR_SOUL:
@@ -399,6 +413,7 @@ P_TouchSpecialThing
 	player->message = DEH_String(GOTSUPER);
 	if (gameversion > exe_doom_1_2)
 	    sound = sfx_getpow;
+	SC_OnGetHealth( deh_soulsphere_health ); // [arcade]
 	break;
 	
       case SPR_MEGA:
@@ -412,6 +427,7 @@ P_TouchSpecialThing
 	player->message = DEH_String(GOTMSPHERE);
 	if (gameversion > exe_doom_1_2)
 	    sound = sfx_getpow;
+	SC_OnGetHealth( deh_megasphere_health ); // [arcade]
 	break;
 	
 	// cards
@@ -600,6 +616,7 @@ P_TouchSpecialThing
 	for (i=0 ; i<NUMAMMO ; i++)
 	    P_GiveAmmo (player, i, 1);
 	player->message = DEH_String(GOTBACKPACK);
+	SC_OnGetBackpack(); // [arcade]
 	break;
 	
 	// weapons
@@ -678,7 +695,7 @@ P_KillMobj
 {
     mobjtype_t	item;
     mobj_t*	mo;
-	
+
     target->flags &= ~(MF_SHOOTABLE|MF_FLOAT|MF_SKULLFLY);
 
     if (target->type != MT_SKULL)
@@ -895,11 +912,14 @@ P_DamageMobj
 	if (player == &players[consoleplayer])
 	    I_Tactile (40,10,40+temp*2);
     }
-    
+
+	SC_OnMobjDamaged( target, inflictor, source, damage, thrust ); // [arcade]
+
     // do the damage	
     target->health -= damage;	
     if (target->health <= 0)
     {
+	SC_OnMobjKilled( target, inflictor, source ); // [arcade]
 	P_KillMobj (source, target);
 	return;
     }
@@ -928,4 +948,3 @@ P_DamageMobj
     }
 			
 }
-
