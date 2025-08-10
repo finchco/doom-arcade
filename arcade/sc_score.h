@@ -10,9 +10,9 @@ typedef struct mobj_s mobj_t;
 
 typedef struct
 {
-	char name[SC_MAX_NAME_LEN + 1];
-	unsigned score;
-	unsigned duration_sec;
+    char name[SC_MAX_NAME_LEN + 1];
+    unsigned score;
+    unsigned duration_sec;
 } sc_record_t;
 
 #define SC_NUM_RECORDS 10
