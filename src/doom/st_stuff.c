@@ -806,7 +806,7 @@ void ST_updateFaceWidget(void)
 
 void ST_updateWidgets(void)
 {
-    static int	largeammo = 1994; // means "n/a"
+    static int	largeammo = INT_MAX; // means "n/a"
     int		i;
 
     // must redirect the pointer if the ready weapon has changed.
@@ -1364,4 +1364,3 @@ void ST_Init (void)
     ST_loadData();
     st_backing_screen = (pixel_t *) Z_Malloc(ST_WIDTH * ST_HEIGHT * sizeof(*st_backing_screen), PU_STATIC, 0);
 }
-

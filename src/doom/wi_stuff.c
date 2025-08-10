@@ -663,7 +663,7 @@ WI_drawNum
 	n = -n;
 
     // if non-number, do not draw it
-    if (n == 1994)
+    if (n == INT_MAX)
 	return 0;
 
     // draw the new number

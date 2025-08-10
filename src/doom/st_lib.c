@@ -115,7 +115,7 @@ STlib_drawNum
     V_CopyRect(x, n->y - ST_Y, st_backing_screen, w*numdigits, h, x, n->y);
 
     // if non-number, do not draw it
-    if (num == 1994)
+    if (num == INT_MAX)
 	return;
 
     x = n->x;
@@ -280,4 +280,3 @@ STlib_updateBinIcon
     }
 
 }
-
