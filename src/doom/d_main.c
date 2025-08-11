@@ -494,15 +494,15 @@ void D_DoomLoop (void)
     I_InitGraphics();
     EnableLoadingDisk();
 
+    // [arcade] init scores
+    SC_Init();
+
     TryRunTics();
 
     V_RestoreBuffer();
     R_ExecuteSetViewSize();
 
     D_StartGameLoop();
-
-    // [arcade] init scores
-    SC_Init();
 
     if (testcontrols)
     {
