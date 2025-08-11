@@ -241,18 +241,13 @@ int             vanilla_demo_limit = 1;
 // [arcade] save checkpoint
 void G_SaveArcadeCheckpoint()
 {
-	// NOTE doing this with G_SaveGame doesn't work on the first frame because
-	// it's implemented as a button press, and the player's button presses are ignored
-	// on the first frame (or something like that).
-	savegameslot = 0;
-	M_StringCopy(savedescription, "arcade", sizeof(savedescription));
-	G_DoSaveGame();
     // NOTE doing this with G_SaveGame doesn't work on the first frame because
     // it's implemented as a button press, and the player's button presses are ignored
     // on the first frame (or something like that).
     savegameslot = 0;
     M_StringCopy(savedescription, "arcade", sizeof(savedescription));
     G_DoSaveGame();
+    SC_OnSaveCheckpoint();
 }
 
 // [arcade] load checkpoint

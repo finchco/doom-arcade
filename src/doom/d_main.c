@@ -284,6 +284,10 @@ boolean D_Display (void)
                           W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
     }
 
+    if (gamestate == GS_LEVEL && !automapactive)
+    {
+        SC_Draw();
+    }
 
     // menus go directly to the screen
     M_Drawer ();          // menu is drawn even on top of everything
