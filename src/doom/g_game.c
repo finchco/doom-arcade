@@ -247,19 +247,26 @@ void G_SaveArcadeCheckpoint()
 	savegameslot = 0;
 	M_StringCopy(savedescription, "arcade", sizeof(savedescription));
 	G_DoSaveGame();
+    // NOTE doing this with G_SaveGame doesn't work on the first frame because
+    // it's implemented as a button press, and the player's button presses are ignored
+    // on the first frame (or something like that).
+    savegameslot = 0;
+    M_StringCopy(savedescription, "arcade", sizeof(savedescription));
+    G_DoSaveGame();
 }
 
 // [arcade] load checkpoint
 void G_LoadArcadeCheckpoint()
 {
-	G_LoadGame (P_SaveGameFile(0));
+    G_LoadGame(P_SaveGameFile(0));
+    SC_OnLoadCheckpoint();
 }
 
 // [arcade] try to fix problems with wrapping tics
 void G_ResetTics()
 {
-	extern int maketic, recvtic; // d_loop.c
-	gametic = maketic = recvtic = 0;
+    extern int maketic, recvtic; // d_loop.c
+    gametic = maketic = recvtic = 0;
 }
 
 
@@ -1339,18 +1346,18 @@ void G_DoReborn (int playernum)
 	 
     if (!netgame)
     {
-    	// [arcade] can only reset level when there are lives remaining
-    	if (--num_player_lives == 0)
-    	{
-    		SC_FinalizeRecord("DMK");
-    		M_ClearMenus();
-			D_StartTitle();
-    	}
-    	else
-    	{
-    		// [arcade] load last checkpoint
-    		G_LoadArcadeCheckpoint();
-    	}
+        // [arcade] can only reset level when there are lives remaining
+        if (--num_player_lives == 0)
+        {
+            SC_FinalizeRecord("DMK");
+            M_ClearMenus();
+            D_StartTitle();
+        }
+        else
+        {
+            // [arcade] load last checkpoint
+            G_LoadArcadeCheckpoint();
+        }
     }
     else 
     {
