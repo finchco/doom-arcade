@@ -78,6 +78,7 @@
 #include "doom_icon.c"
 
 #include "../../arcade/sc_score.h"
+#include "../../arcade/arcade.h"
 
 //
 // D-DoomLoop()
@@ -286,7 +287,7 @@ boolean D_Display (void)
 
     if (gamestate == GS_LEVEL && !automapactive)
     {
-        SC_Draw();
+        AR_DrawHud();
     }
 
     // menus go directly to the screen

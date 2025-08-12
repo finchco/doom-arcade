@@ -3,15 +3,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "i_swap.h"
-#include "i_video.h"
-#include "v_video.h"
 #include "../src/i_system.h"
 #include "../src/m_misc.h"
-#include "../src/v_patch.h"
 #include "../src/doom/p_mobj.h"
-
-extern patch_t *shortnum[10];
 
 #define SC_RECORD_FILENAME "arcade_records.txt"
 
@@ -152,6 +146,11 @@ int SC_FinalizeRecord(char *player_name)
     return rank;
 }
 
+int SC_GetCurrentScore(void)
+{
+    return sc_active_score.score;
+}
+
 void SC_OnNextMap(int maxkills, int maxitems, int maxsecrets)
 {
     sc_active_score.maxkills = maxkills;
@@ -270,27 +269,4 @@ void SC_OnLoadCheckpoint(void)
 void SC_OnSaveCheckpoint(void)
 {
     memcpy(&sc_checkpoint_score, &sc_active_score, sizeof(sc_score_t));
-}
-
-static void SC_DrawScoreRightAlign(int score, int x, int y)
-{
-    patch_t **p = shortnum;
-    if (score == 0)
-    {
-        V_DrawPatch(x, y, p[0]);
-        return;
-    }
-
-    for (int i = 0; score && i < 9; ++i)
-    {
-        int val = score % 10;
-        x -= SHORT(p[val]->width);
-        V_DrawPatch(x, y, p[val]);
-        score /= 10;
-    }
-}
-
-void SC_Draw(void)
-{
-    SC_DrawScoreRightAlign(sc_active_score.score, SCREENWIDTH, 0);
 }

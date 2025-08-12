@@ -8,6 +8,8 @@ typedef struct mobj_s mobj_t;
 void SC_Init(void);
 void SC_BeginNewRecord(boolean is_nightmare);
 int SC_FinalizeRecord(char *player_name); // return leaderboard spot or -1
+int SC_GetCurrentScore(void);
+
 void SC_OnNextMap(int maxkills, int maxitems, int maxsecrets);
 void SC_OnGetAmmo(ammotype_t ammo, int amount);
 void SC_OnGetArmor(int amount);
@@ -24,7 +26,5 @@ void SC_OnTouchSecretSector(void);
 
 void SC_OnLoadCheckpoint(void);
 void SC_OnSaveCheckpoint(void);
-
-void SC_Draw(void);
 
 #endif

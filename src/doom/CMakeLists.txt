@@ -67,7 +67,9 @@ add_library(doom STATIC
             st_stuff.c      st_stuff.h
             wi_stuff.c      wi_stuff.h
             ../../arcade/sc_score.c
-            ../../arcade/sc_score.h)
+            ../../arcade/sc_score.h
+            ../../arcade/arcade.c
+            ../../arcade/arcade.h)
 
 target_include_directories(doom PRIVATE "../" "${CMAKE_CURRENT_BINARY_DIR}/../../")
 
