@@ -811,7 +811,7 @@ P_DamageMobj
     unsigned	ang;
     int		saved;
     player_t*	player;
-    fixed_t	thrust;
+    fixed_t	thrust = 0;
     int		temp;
 	
     if ( !(target->flags & MF_SHOOTABLE) )
@@ -913,7 +913,7 @@ P_DamageMobj
 	    I_Tactile (40,10,40+temp*2);
     }
 
-	SC_OnMobjDamaged( target, inflictor, source, damage, thrust ); // [arcade]
+    SC_OnMobjDamaged( target, inflictor, source, damage, thrust ); // [arcade]
 
     // do the damage	
     target->health -= damage;	
