@@ -235,7 +235,7 @@ static patch_t*		sbar;
 static patch_t*		sbarr;
 
 // 0-9, tall numbers
-static patch_t*		tallnum[10];
+patch_t*		tallnum[10];
 
 // tall % sign
 static patch_t*		tallpercent;

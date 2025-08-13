@@ -295,15 +295,23 @@ boolean D_Display (void)
     NetUpdate ();         // send out any new accumulation
 
     // [arcade] flash INSERT COIN or PRESS START during demo playback (attract mode)
-    if (((gamestate == GS_DEMOSCREEN) || demoplayback) && ((I_GetTime() & 16) == 0))
+    if (gamestate == GS_DEMOSCREEN || demoplayback)
     {
+        AR_DrawLeaderboard();
+
         if (num_coins_inserted == 0)
         {
-            V_DrawPatchDirect(80, 40, W_CacheLumpName("INCOIN", PU_CACHE));
+            if ((I_GetTime() & 16) == 0)
+            {
+                V_DrawPatchDirect(80, 8, W_CacheLumpName("INCOIN", PU_CACHE));
+            }
         }
         else
         {
-            V_DrawPatchDirect(80, 40, W_CacheLumpName("PRSTART", PU_CACHE));
+            if ((I_GetTime() & 8) == 0)
+            {
+                V_DrawPatchDirect(80, 8, W_CacheLumpName("PRSTART", PU_CACHE));
+            }
         }
     }
 

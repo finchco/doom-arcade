@@ -8,26 +8,47 @@
 #include "../src/v_video.h"
 
 extern patch_t *shortnum[10];
+extern patch_t *tallnum[10];
 
-static void DrawScoreRightAlign(int score, int x, int y)
+static void DrawScoreRightAlign(patch_t** patches, int score, int x, int y)
 {
-    patch_t **p = shortnum;
     if (score == 0)
     {
-        V_DrawPatch(x, y, p[0]);
+        V_DrawPatch(x, y, patches[0]);
         return;
     }
 
     for (int i = 0; score && i < 9; ++i)
     {
         int val = score % 10;
-        x -= SHORT(p[val]->width);
-        V_DrawPatch(x, y, p[val]);
+        x -= SHORT(patches[val]->width);
+        V_DrawPatch(x, y, patches[val]);
         score /= 10;
     }
 }
 
+
 void AR_DrawHud(void)
 {
-    DrawScoreRightAlign(SC_GetCurrentScore(), SCREENWIDTH, 0);
+    DrawScoreRightAlign(shortnum, SC_GetCurrentScore(), SCREENWIDTH, 0);
+}
+
+void AR_DrawLeaderboard(void)
+{
+    sc_record_t records[SC_NUM_RECORDS];
+    int x, y;
+    int startx = 128;
+
+    SC_GetRecords(records);
+
+    x = startx;
+    y = 40;
+    for (int i = 0; i < SC_NUM_RECORDS; ++i)
+    {
+        //DrawName(records[i].name, x, y);
+        x += 128;
+        DrawScoreRightAlign(tallnum, records[i].score, x, y);
+        x = startx;
+        y += 16;
+    }
 }

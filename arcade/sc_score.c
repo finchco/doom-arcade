@@ -12,17 +12,8 @@
 #define SSCANF_FORMAT_STRING_LEN_(S) "%" #S "s"
 #define SSCANF_FORMAT_STRING_LEN(S) SSCANF_FORMAT_STRING_LEN_(S)
 
-#define SC_MAX_NAME_LEN 3
 #define SC_RECORD_VERSION 1
 
-typedef struct
-{
-    char name[SC_MAX_NAME_LEN + 1];
-    int score;
-    int duration_sec;
-} sc_record_t;
-
-#define SC_NUM_RECORDS 8
 static sc_record_t sc_records[SC_NUM_RECORDS];
 
 typedef struct
@@ -62,7 +53,7 @@ static void SC_LoadRecords(void)
 
     // check file version
     // TODO migration
-    fgets(line, sizeof(line), f);
+    if (!fgets(line, sizeof(line), f)) { I_Error("Failed to read records"); }
     fileversion = atoi(line);
     if (fileversion != SC_RECORD_VERSION)
     {
@@ -74,7 +65,7 @@ static void SC_LoadRecords(void)
     for (int i = 0; i < SC_NUM_RECORDS; ++i)
     {
         r = &sc_records[i];
-        fgets(line, sizeof(line), f);
+        if (!fgets(line, sizeof(line), f)) { I_Error("Failed to read recoreds"); }
         if (sscanf(line, SSCANF_FORMAT_STRING_LEN(SC_MAX_NAME_LEN) " %u %u",
                    r->name, &r->score, &r->duration_sec) != 3)
         {
@@ -149,6 +140,11 @@ int SC_FinalizeRecord(char *player_name)
 int SC_GetCurrentScore(void)
 {
     return sc_active_score.score;
+}
+
+void SC_GetRecords(sc_record_t out[8])
+{
+    memcpy(out, sc_records, sizeof(sc_records));
 }
 
 void SC_OnNextMap(int maxkills, int maxitems, int maxsecrets)
