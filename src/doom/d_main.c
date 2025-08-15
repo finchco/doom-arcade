@@ -79,6 +79,7 @@
 
 #include "../../arcade/sc_score.h"
 #include "../../arcade/arcade.h"
+#include "../../arcade/ar_fonts.h"
 
 //
 // D-DoomLoop()
@@ -1539,14 +1540,15 @@ void D_DoomMain (void)
     W_CheckCorrectIWAD(doom);
 
     // [arcade] always load arcade wad
+    if (!M_FileExists("arcade.wad"))
     {
-        if (!M_FileExists("arcade.wad"))
-        {
-            I_Error("Can't find arcade.wad");
-        }
-        printf(" adding arcade.wad\n");
-        W_AddFile("arcade.wad");
+        I_Error("Can't find arcade.wad");
     }
+    printf(" adding arcade.wad\n");
+    W_AddFile("arcade.wad");
+
+    // [arcade] load non-wad arcade assets
+    AR_LoadFonts();
 
     // Now that we've loaded the IWAD, we can figure out what gamemission
     // we're playing and which version of Vanilla Doom we need to emulate.
