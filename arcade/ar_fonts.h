@@ -9,7 +9,8 @@ typedef enum
 } ar_font_e;
 
 void AR_InitFonts(void);
-void AR_DrawString(ar_font_e fontid, unsigned startx, unsigned starty,
+void AR_DrawString(ar_font_e fontid, int startx, int starty,
                    const char *str);
-
+void AR_DrawStringRightAlign(ar_font_e fontid, int startx, int starty,
+                             const char *str);
 #endif

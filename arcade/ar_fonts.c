@@ -7,6 +7,8 @@
 #include <SDL_stdinc.h>
 #include <SDL_assert.h>
 
+// TODO: none of this is endian-safe
+
 typedef struct
 {
     uint16_t x;
@@ -212,6 +214,17 @@ static void LoadBMFont(font_t *font)
     LoadBMFontPixelsTGA(font);
 }
 
+static int CalcStringWidth(font_t *font, const char *str)
+{
+    int w = 0;
+    while (*str)
+    {
+        w += font->glyphs[(uint8_t) *str].w;
+        ++str;
+    }
+    return w;
+}
+
 void AR_InitFonts(void)
 {
     for (int i = 0; i < NUM_ARCADE_FONTS; ++i)
@@ -221,7 +234,7 @@ void AR_InitFonts(void)
 }
 
 void AR_DrawString(ar_font_e fontid, // NOLINT(*-easily-swappable-parameters)
-                   unsigned outx, unsigned outy, const char *str)
+                   int outx, int outy, const char *str)
 {
     font_t *font;
     uint8_t c = (uint8_t) *str;
@@ -230,9 +243,14 @@ void AR_DrawString(ar_font_e fontid, // NOLINT(*-easily-swappable-parameters)
     {
         I_Error("AR_DrawString: bad font");
     }
+    else if (!c || outx >= SCREENWIDTH || outy >= SCREENHEIGHT)
+    {
+        return;
+    }
 
     // The big trouble with dumb bastards is that they are too dumb to believe
     // there is such a thing as being smart.
+    // TODO: write a blit function that doesn't shame my ancestors
 
     font = &fonts[fontid];
     while (c)
@@ -241,14 +259,32 @@ void AR_DrawString(ar_font_e fontid, // NOLINT(*-easily-swappable-parameters)
 
         for (int y = 0; y < g->h; ++y)
         {
-            if (y + outy + g->h >= SCREENHEIGHT)
+            if (y + outy < 0)
+            {
+                continue;
+            }
+            else if (y + outy + g->h >= SCREENHEIGHT)
             {
                 break;
             }
 
             for (int x = 0; x < g->w; ++x)
             {
-                uint8_t p = font->pixels[(x + g->x) + (y + g->y) * font->w];
+                int i;
+                uint8_t p;
+
+                if (x + outx < 0)
+                {
+                    continue;
+                }
+                else if (x + outx >= SCREENWIDTH)
+                {
+                    break;
+                }
+
+                i = (x + g->x) + (y + g->y) * font->w;
+                SDL_assert(i >= 0 && i < font->w * font->h);
+                p = font->pixels[i];
                 if (p)
                 {
                     I_VideoBuffer[(x + outx) + (y + outy) * SCREENWIDTH] = p;
@@ -259,4 +295,16 @@ void AR_DrawString(ar_font_e fontid, // NOLINT(*-easily-swappable-parameters)
         c = (uint8_t) *++str;
         outx += g->w;
     }
+}
+void AR_DrawStringRightAlign(
+    ar_font_e fontid, // NOLINT(*-easily-swappable-parameters)
+    int startx, int starty, const char *str)
+{
+    if (fontid >= NUM_ARCADE_FONTS)
+    {
+        I_Error("AR_DrawStringRightAlign: bad font");
+    }
+
+    startx -= CalcStringWidth(&fonts[fontid], str);
+    AR_DrawString(fontid, startx, starty, str);
 }
