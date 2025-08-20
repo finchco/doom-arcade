@@ -49,8 +49,9 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#define DEFAULT_RAM 16 /* MiB */
-#define MIN_RAM     4  /* MiB */
+// [arcade] we can use more RAM
+#define DEFAULT_RAM 128 /* MiB */
+#define MIN_RAM     128  /* MiB */
 
 
 typedef struct atexit_listentry_s atexit_listentry_t;
@@ -467,4 +468,3 @@ boolean I_GetMemoryValue(unsigned int offset, void *value, int size)
 
     return false;
 }
-
