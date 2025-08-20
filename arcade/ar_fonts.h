@@ -1,10 +1,15 @@
 #ifndef _FON2_H_
 #define _FON2_H_
 
-#define NUM_FONTS 1
+typedef enum
+{
+    ARCADE_FONT_BIG,
+    ARCADE_FONT_SMALL,
+    NUM_ARCADE_FONTS
+} ar_font_e;
 
-#define ARCADE_FONT_BIG     0
-
-void AR_LoadFonts(void);
+void AR_InitFonts(void);
+void AR_DrawString(ar_font_e fontid, unsigned startx, unsigned starty,
+                   const char *str);
 
 #endif

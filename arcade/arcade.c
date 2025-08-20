@@ -1,5 +1,6 @@
 #include "arcade.h"
 
+#include "ar_fonts.h"
 #include "sc_score.h"
 #include "../src/i_swap.h"
 #include "../src/i_video.h"
@@ -30,7 +31,9 @@ static void DrawScoreRightAlign(patch_t** patches, int score, int x, int y)
 
 void AR_DrawHud(void)
 {
-    DrawScoreRightAlign(shortnum, SC_GetCurrentScore(), SCREENWIDTH, 0);
+    char s[10] = {0};
+    SDL_itoa(SC_GetCurrentScore(), s, 9);
+    AR_DrawString(ARCADE_FONT_BIG, 0, 0, s);
 }
 
 void AR_DrawLeaderboard(void)

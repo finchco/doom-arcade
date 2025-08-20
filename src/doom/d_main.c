@@ -1548,7 +1548,7 @@ void D_DoomMain (void)
     W_AddFile("arcade.wad");
 
     // [arcade] load non-wad arcade assets
-    AR_LoadFonts();
+    AR_InitFonts();
 
     // Now that we've loaded the IWAD, we can figure out what gamemission
     // we're playing and which version of Vanilla Doom we need to emulate.
