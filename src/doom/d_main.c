@@ -296,7 +296,7 @@ boolean D_Display (void)
     NetUpdate ();         // send out any new accumulation
 
     // [arcade] flash INSERT COIN or PRESS START during demo playback (attract mode)
-    if (gamestate == GS_DEMOSCREEN || demoplayback)
+    if (demoplayback)
     {
         AR_DrawLeaderboard();
 
