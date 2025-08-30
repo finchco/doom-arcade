@@ -393,13 +393,13 @@ R_StoreWallRange
     sidedef = curline->sidedef;
     linedef = curline->linedef;
 
-	// [arcade] score mapped wall
-	if ( (linedef->flags & ML_MAPPED) == 0 )
-	{
-		boolean is_boundary = !linedef->backsector;
-		boolean is_secret = linedef->flags & ML_SECRET;
-		SC_OnMappedWall( is_boundary, is_secret );
-	}
+    // [arcade] score mapped wall
+    if ((linedef->flags & ML_MAPPED) == 0)
+    {
+        boolean is_boundary = !linedef->backsector;
+        boolean is_secret = linedef->flags & ML_SECRET;
+        AR_OnMappedWall(is_boundary, is_secret);
+    }
 
     // mark the segment as visible for auto map
     linedef->flags |= ML_MAPPED;

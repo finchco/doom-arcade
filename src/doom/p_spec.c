@@ -1071,7 +1071,7 @@ void P_PlayerInSpecialSector (player_t* player)
 	// SECRET SECTOR
 	player->secretcount++;
 	sector->special = 0;
-    SC_OnTouchSecretSector(); // [arcade]
+	AR_OnTouchSecretSector(); // [arcade]
 	break;
 			
       case 11:

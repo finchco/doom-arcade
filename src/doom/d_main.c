@@ -574,7 +574,6 @@ void D_AdvanceDemo (void)
 //
 void D_DoAdvanceDemo (void)
 {
-    SC_BeginNewRecord(false);
     players[consoleplayer].playerstate = PST_LIVE;  // not reborn
     advancedemo = false;
     usergame = false;               // no save / end game here

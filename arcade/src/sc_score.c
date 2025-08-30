@@ -147,54 +147,54 @@ void SC_GetRecords(sc_record_t out[8])
     memcpy(out, sc_records, sizeof(sc_records));
 }
 
-void SC_OnNextMap(int maxkills, int maxitems, int maxsecrets)
+void AR_OnNextMap(int maxkills, int maxitems, int maxsecrets)
 {
     sc_active_score.maxkills = maxkills;
     sc_active_score.maxitems = maxitems;
     sc_active_score.maxsecrets = maxsecrets;
 }
 
-void SC_OnGetAmmo(ammotype_t ammo, int amount)
+void AR_OnGetAmmo(ammotype_t ammo, int amount)
 {
     sc_active_score.score += amount;
 }
 
-void SC_OnGetArmor(int amount)
+void AR_OnGetArmor(int amount)
 {
     sc_active_score.score += amount;
 }
 
-void SC_OnGetBackpack(void)
+void AR_OnGetBackpack(void)
 {
     sc_active_score.score += 500;
 }
 
-void SC_OnGetHealth(int amount)
+void AR_OnGetHealth(int amount)
 {
     sc_active_score.score += amount;
 }
 
-void SC_OnGetKey(int type)
+void AR_OnGetKey(int type)
 {
     sc_active_score.score += 1000;
 }
 
-void SC_OnGetPowerup(int type)
+void AR_OnGetPowerup(int type)
 {
     sc_active_score.score += 1000;
 }
 
-void SC_OnGetWeapon(weapontype_t weapon, boolean was_dropped)
+void AR_OnGetWeapon(weapontype_t weapon, boolean was_dropped)
 {
     sc_active_score.score += 1000;
 }
 
-void SC_OnMappedWall(boolean is_boundary, boolean is_secret)
+void AR_OnMappedWall(boolean is_boundary, boolean is_secret)
 {
     sc_active_score.score += is_boundary + (is_secret * 100);
 }
 
-void SC_OnMobjDamaged(mobj_t *target, mobj_t *inflictor, mobj_t *source,
+void AR_OnMobjDamaged(mobj_t *target, mobj_t *inflictor, mobj_t *source,
                       int damage, fixed_t thrust)
 {
     sc_active_score.score += damage / 10;
@@ -238,7 +238,7 @@ static int SC_PointsForKill(mobj_t *killed)
     }
 }
 
-void SC_OnMobjKilled(mobj_t *target, mobj_t *inflictor, mobj_t *source)
+void AR_OnMobjKilled(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 {
     int points = SC_PointsForKill(target);
     if (!points)
@@ -252,7 +252,7 @@ void SC_OnMobjKilled(mobj_t *target, mobj_t *inflictor, mobj_t *source)
     sc_active_score.score += points;
 }
 
-void SC_OnTouchSecretSector(void)
+void AR_OnTouchSecretSector(void)
 {
     sc_active_score.score += 1000;
 }

@@ -4,6 +4,9 @@
 #include "sc_score.h"
 #include "../../src/i_swap.h"
 #include "../../src/i_video.h"
+#include "../../src/m_misc.h"
+#include "../../src/doom/g_game.h"
+#include "../../src/doom/p_saveg.h"
 
 void AR_Init(void)
 {
@@ -36,4 +39,23 @@ void AR_DrawLeaderboard(void)
         AR_DrawStringRightAlign(ARCADE_FONT_BIG, startx + 128, y, buf);
         y += 16;
     }
+}
+
+void AR_SaveCheckpoint()
+{
+    G_SaveGame(0, "arcade");
+    SC_OnSaveCheckpoint();
+}
+
+void AR_LoadCheckpoint()
+{
+    G_LoadGame(P_SaveGameFile(0));
+    SC_OnLoadCheckpoint();
+}
+
+void AR_OnNewGameBegin(boolean is_nightmare)
+{
+    // [arcade] save at start of map so it can be loaded on death
+    AR_SaveCheckpoint();
+    SC_BeginNewRecord(is_nightmare);
 }

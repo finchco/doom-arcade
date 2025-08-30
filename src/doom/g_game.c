@@ -92,7 +92,7 @@ void	G_DoPlayDemo (void);
 void	G_DoCompleted (void); 
 void	G_DoVictory (void); 
 void	G_DoWorldDone (void); 
-void	G_DoSaveGame (void); 
+void	G_DoSaveGame (void);
 
 // [arcade] lives remaining
 extern int num_player_lives; // m_menu.c
@@ -227,8 +227,8 @@ static int      joystrafemove;
 static boolean  joyarray[MAX_JOY_BUTTONS + 1]; 
 static boolean *joybuttons = &joyarray[1];		// allow [-1] 
  
-static int      savegameslot; 
-static char     savedescription[32]; 
+static int      savegameslot;
+static char     savedescription[32];
  
 #define	BODYQUESIZE	32
 
@@ -238,24 +238,6 @@ int		bodyqueslot;
 int             vanilla_savegame_limit = 1;
 int             vanilla_demo_limit = 1;
 
-// [arcade] save checkpoint
-void G_SaveArcadeCheckpoint()
-{
-    // NOTE doing this with G_SaveGame doesn't work on the first frame because
-    // it's implemented as a button press, and the player's button presses are ignored
-    // on the first frame (or something like that).
-    savegameslot = 0;
-    M_StringCopy(savedescription, "arcade", sizeof(savedescription));
-    G_DoSaveGame();
-    SC_OnSaveCheckpoint();
-}
-
-// [arcade] load checkpoint
-void G_LoadArcadeCheckpoint()
-{
-    G_LoadGame(P_SaveGameFile(0));
-    SC_OnLoadCheckpoint();
-}
 
 // [arcade] try to fix problems with wrapping tics
 void G_ResetTics()
@@ -1344,14 +1326,13 @@ void G_DoReborn (int playernum)
         // [arcade] can only reset level when there are lives remaining
         if (--num_player_lives == 0)
         {
-            SC_FinalizeRecord("DMK");
             M_ClearMenus();
             D_StartTitle();
         }
         else
         {
             // [arcade] load last checkpoint
-            G_LoadArcadeCheckpoint();
+            AR_LoadCheckpoint();
         }
     }
     else 
@@ -1658,8 +1639,8 @@ void G_DoWorldDone (void)
 	G_ResetTics();
 
 	// [arcade] save at start of map so it can be loaded on death
-	G_SaveArcadeCheckpoint();
-	SC_OnNextMap(wminfo.maxkills, wminfo.maxitems, wminfo.maxsecret);
+	AR_SaveCheckpoint();
+	AR_OnNextMap(wminfo.maxkills, wminfo.maxitems, wminfo.maxsecret);
 }
  
 
@@ -1853,9 +1834,7 @@ void G_DoNewGame (void)
     G_InitNew (d_skill, d_episode, d_map); 
     gameaction = ga_nothing;
 
-	// [arcade] save at start of map so it can be loaded on death
-	G_SaveArcadeCheckpoint();
-	SC_BeginNewRecord(d_skill == sk_nightmare);
+    AR_OnNewGameBegin(d_skill == sk_nightmare);
 }
 
 
