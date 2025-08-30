@@ -1,9 +1,9 @@
-#include "arcade.h"
+#include "../include/arcade.h"
 
 #include "ar_fonts.h"
 #include "sc_score.h"
-#include "../src/i_swap.h"
-#include "../src/i_video.h"
+#include "../../src/i_swap.h"
+#include "../../src/i_video.h"
 
 void AR_DrawHud(void)
 {

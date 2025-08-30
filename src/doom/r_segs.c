@@ -32,7 +32,7 @@
 #include "r_local.h"
 #include "r_sky.h"
 
-#include "../../arcade/sc_score.h"
+#include "../../arcade/include/arcade.h"
 
 
 // OPTIMIZE: closed two sided lines as single sided

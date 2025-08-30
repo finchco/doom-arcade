@@ -75,7 +75,7 @@
 
 #include "g_game.h"
 
-#include "../../arcade/sc_score.h"
+#include "../../arcade/include/arcade.h"
 
 
 #define SAVEGAMESIZE	0x2c000

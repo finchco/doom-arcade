@@ -73,7 +73,7 @@ static void LoadBMFontMeta(font_t *font)
     FILE *fp;
     int skip, count, numchars, ichar;
 
-    SDL_snprintf(buf, sizeof(buf), "%s.fnt", font->name);
+    SDL_snprintf(buf, sizeof(buf), "ardata/%s.fnt", font->name);
     fp = fopen(buf, "rt");
     if (!fp)
     {
@@ -149,7 +149,7 @@ static void LoadBMFontPixelsTGA(font_t *font)
 
     SDL_assert(font && font->numpages == 1 && !font->pixels);
 
-    SDL_snprintf(buf, sizeof(buf), "%s_0.tga", font->name);
+    SDL_snprintf(buf, sizeof(buf), "ardata/%s_0.tga", font->name);
     fp = fopen(buf, "rb");
     if (!fp)
     {

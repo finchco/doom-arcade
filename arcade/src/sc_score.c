@@ -3,11 +3,11 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "../src/i_system.h"
-#include "../src/m_misc.h"
-#include "../src/doom/p_mobj.h"
+#include "../../src/i_system.h"
+#include "../../src/m_misc.h"
+#include "../../src/doom/p_mobj.h"
 
-#define SC_RECORD_FILENAME "arcade_records.txt"
+#define SC_RECORD_FILENAME "ardata/arcade_records.txt"
 
 #define SSCANF_FORMAT_STRING_LEN_(S) "%" #S "s"
 #define SSCANF_FORMAT_STRING_LEN(S) SSCANF_FORMAT_STRING_LEN_(S)

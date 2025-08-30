@@ -1,7 +1,7 @@
 #ifndef _SC_SCORE_
 #define _SC_SCORE_
 
-#include "../src/doom/doomdef.h"
+#include "../../src/doom/doomdef.h"
 #include "m_fixed.h"
 typedef struct mobj_s mobj_t;
 

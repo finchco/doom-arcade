@@ -39,7 +39,7 @@
 
 #include "p_inter.h"
 
-#include "../../arcade/sc_score.h"
+#include "../../arcade/include/arcade.h"
 
 
 #define BONUSADD	6

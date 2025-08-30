@@ -47,7 +47,7 @@
 // Data.
 #include "sounds.h"
 
-#include "../../arcade/sc_score.h"
+#include "../../arcade/include/arcade.h"
 
 
 //

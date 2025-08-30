@@ -66,12 +66,12 @@ add_library(doom STATIC
             st_lib.c        st_lib.h
             st_stuff.c      st_stuff.h
             wi_stuff.c      wi_stuff.h
-            ../../arcade/sc_score.c
-            ../../arcade/sc_score.h
-            ../../arcade/arcade.c
-            ../../arcade/arcade.h
-            ../../arcade/ar_fonts.c
-            ../../arcade/ar_fonts.h)
+        ../../arcade/src/sc_score.c
+        ../../arcade/src/sc_score.h
+        ../../arcade/src/arcade.c
+        ../../arcade/include/arcade.h
+        ../../arcade/src/ar_fonts.c
+        ../../arcade/src/ar_fonts.h)
 
 target_include_directories(doom PRIVATE "../" "${CMAKE_CURRENT_BINARY_DIR}/../../")
 

@@ -77,9 +77,7 @@
 
 #include "doom_icon.c"
 
-#include "../../arcade/sc_score.h"
-#include "../../arcade/arcade.h"
-#include "../../arcade/ar_fonts.h"
+#include "../../arcade/include/arcade.h"
 
 //
 // D-DoomLoop()
