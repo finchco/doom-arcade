@@ -1,6 +1,11 @@
+#[[
 foreach(SUBDIR doom heretic hexen strife setup)
     add_subdirectory("${SUBDIR}")
 endforeach()
+]]
+
+add_subdirectory(doom)
+add_subdirectory(setup)
 
 # Common source files used by absolutely everything:
 
@@ -175,6 +180,7 @@ if(MSVC)
                           LINK_FLAGS "/MANIFEST:NO")
 endif()
 
+#[[
 if(WIN32)
     add_executable("${PROGRAM_PREFIX}heretic" WIN32 ${SOURCE_FILES_WITH_DEH} "${CMAKE_CURRENT_BINARY_DIR}/heretic-res.rc")
 else()
@@ -219,6 +225,7 @@ if(MSVC)
     set_target_properties("${PROGRAM_PREFIX}strife" PROPERTIES
                           LINK_FLAGS "/MANIFEST:NO")
 endif()
+]]
 
 # Source files needed for chocolate-setup:
 
