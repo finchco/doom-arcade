@@ -5,6 +5,12 @@
 #include "../../src/i_swap.h"
 #include "../../src/i_video.h"
 
+void AR_Init(void)
+{
+    SC_Init();
+    AR_InitFonts();
+}
+
 void AR_DrawHud(void)
 {
     char s[10] = {0};

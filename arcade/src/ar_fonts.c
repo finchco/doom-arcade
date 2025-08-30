@@ -209,6 +209,7 @@ static void LoadBMFontPixelsTGA(font_t *font)
 static void LoadBMFont(font_t *font)
 {
     SDL_assert(font && font->name[0]);
+    SDL_assert(!font->pixels);
     printf("Loading font: %s\n", font->name);
     LoadBMFontMeta(font);
     LoadBMFontPixelsTGA(font);

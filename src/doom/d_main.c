@@ -506,8 +506,8 @@ void D_DoomLoop (void)
     I_InitGraphics();
     EnableLoadingDisk();
 
-    // [arcade] init scores
-    SC_Init();
+    // [arcade] init
+    AR_Init();
 
     TryRunTics();
 
@@ -1544,9 +1544,6 @@ void D_DoomMain (void)
     }
     printf(" adding arcade.wad\n");
     W_AddFile("arcade.wad");
-
-    // [arcade] load non-wad arcade assets
-    AR_InitFonts();
 
     // Now that we've loaded the IWAD, we can figure out what gamemission
     // we're playing and which version of Vanilla Doom we need to emulate.
