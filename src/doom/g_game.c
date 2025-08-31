@@ -739,6 +739,9 @@ void G_DoLoadLevel (void)
     {
         players[consoleplayer].message = "Press escape to quit.";
     }
+
+    // [arcade]
+    AR_OnLevelLoaded();
 }
 
 static void SetJoyButtons(unsigned int buttons_mask)
@@ -1326,6 +1329,7 @@ void G_DoReborn (int playernum)
         // [arcade] can only reset level when there are lives remaining
         if (--num_player_lives == 0)
         {
+            AR_OnGameOver();
             M_ClearMenus();
             D_StartTitle();
         }
@@ -1637,9 +1641,6 @@ void G_DoWorldDone (void)
 
     // [arcade] try to fix problems with wrapping tics
     G_ResetTics();
-
-    // [arcade] save at start of map so it can be loaded on death
-    AR_SaveCheckpoint();
 }
 
 
@@ -1656,7 +1657,7 @@ void G_LoadGame (char* name)
     gameaction = ga_loadgame; 
 } 
 
-void G_DoLoadGame (void) 
+void G_DoLoadGame (void)
 { 
     int savedleveltime;
 	 
@@ -1705,7 +1706,7 @@ void G_DoLoadGame (void)
 
 //
 // G_SaveGame
-// Called by the menu task.
+// Called by the menu task.a
 // Description is a 24 byte text string 
 //
 void
@@ -1716,6 +1717,15 @@ G_SaveGame
     savegameslot = slot;
     M_StringCopy(savedescription, description, sizeof(savedescription));
     sendsave = true;
+}
+
+void G_QuickSaveImmediate(const char* name)
+{
+    savegameslot = 0;
+    M_StringCopy(savedescription, name, sizeof(savedescription));
+    SDL_assert(gamestate == GS_LEVEL);
+    SDL_assert(gameaction == ga_nothing);
+    G_DoSaveGame();
 }
 
 void G_DoSaveGame (void) 

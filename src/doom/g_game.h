@@ -49,6 +49,10 @@ void G_DoLoadGame (void);
 // Called by M_Responder.
 void G_SaveGame (int slot, char* description);
 
+// [arcade] checkpoints
+void G_QuickSaveImmediate(const char* name);
+
+
 // Only called by startup code.
 void G_RecordDemo (const char* name);
 

@@ -69,6 +69,7 @@ add_library(doom STATIC
         ../../arcade/src/sc_score.c
         ../../arcade/src/sc_score.h
         ../../arcade/src/arcade.c
+        ../../arcade/src/ar_private.h
         ../../arcade/include/arcade.h
         ../../arcade/src/ar_fonts.c
         ../../arcade/src/ar_fonts.h)

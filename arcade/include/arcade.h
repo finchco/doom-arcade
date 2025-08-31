@@ -11,11 +11,15 @@ void AR_Init(void);
 
 void AR_DrawHud(void);
 void AR_DrawLeaderboard(void);
-
 void AR_LoadCheckpoint(void);
 void AR_SaveCheckpoint(void);
 
+
 void AR_OnNewGameBegin(boolean is_nightmare);
+void AR_OnLevelLoaded(void);
+void AR_OnGameOver(void);
+
+
 void AR_OnGetAmmo(ammotype_t ammo, int amount);
 void AR_OnGetArmor(int amount);
 void AR_OnGetBackpack(void);

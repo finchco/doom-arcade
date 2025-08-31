@@ -20,8 +20,8 @@ int SC_FinalizeRecord(char *player_name); // return leaderboard spot or -1
 int SC_GetCurrentScore(void);
 void SC_GetRecords(sc_record_t out[SC_NUM_RECORDS]);
 
-void SC_OnSaveCheckpoint(void);
-void SC_OnLoadCheckpoint(void);
+void SC_SaveCheckpoint(void);
+void SC_LoadCheckpoint(void);
 
 
 #endif

@@ -91,6 +91,7 @@ void SC_BeginNewRecord(boolean is_nightmare)
     memset(&sc_active_score, 0, sizeof(sc_active_score));
     sc_active_score.is_nightmare = is_nightmare;
     sc_active_score.score = 0;
+    SC_SaveCheckpoint();
 }
 
 int SC_FinalizeRecord(char *player_name)
@@ -250,12 +251,12 @@ void AR_OnTouchSecretSector(void)
     sc_active_score.score += 1000;
 }
 
-void SC_OnLoadCheckpoint(void)
+void SC_LoadCheckpoint(void)
 {
     memcpy(&sc_active_score, &sc_checkpoint_score, sizeof(sc_score_t));
 }
 
-void SC_OnSaveCheckpoint(void)
+void SC_SaveCheckpoint(void)
 {
     memcpy(&sc_checkpoint_score, &sc_active_score, sizeof(sc_score_t));
 }
