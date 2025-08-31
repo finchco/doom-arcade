@@ -10,9 +10,9 @@ typedef struct event_s event_t;
 
 void AR_Init(void);
 void AR_Drawer(void);
-boolean AR_Responder(event_t* ev);
+boolean AR_Responder(event_t *ev);
 
-void AR_OnNewGameBegin(boolean is_nightmare);
+void AR_OnNewGame(boolean is_nightmare);
 void AR_OnLevelLoaded(void);
 void AR_Respawn(void);
 

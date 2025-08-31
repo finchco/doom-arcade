@@ -10,7 +10,7 @@
 #define SC_RECORD_FILENAME "ardata/arcade_records.txt"
 
 #define SSCANF_FORMAT_STRING_LEN_(S) "%" #S "s"
-#define SSCANF_FORMAT_STRING_LEN(S) SSCANF_FORMAT_STRING_LEN_(S)
+#define SSCANF_FORMAT_STRING_LEN(S)  SSCANF_FORMAT_STRING_LEN_(S)
 
 #define SC_RECORD_VERSION 1
 
@@ -53,7 +53,10 @@ static void SC_LoadRecords(void)
 
     // check file version
     // TODO migration
-    if (!fgets(line, sizeof(line), f)) { I_Error("Failed to read records"); }
+    if (!fgets(line, sizeof(line), f))
+    {
+        I_Error("Failed to read records");
+    }
     fileversion = atoi(line);
     if (fileversion != SC_RECORD_VERSION)
     {
@@ -65,7 +68,10 @@ static void SC_LoadRecords(void)
     for (int i = 0; i < SC_NUM_RECORDS; ++i)
     {
         r = &sc_records[i];
-        if (!fgets(line, sizeof(line), f)) { I_Error("Failed to read recoreds"); }
+        if (!fgets(line, sizeof(line), f))
+        {
+            I_Error("Failed to read recoreds");
+        }
         if (sscanf(line, SSCANF_FORMAT_STRING_LEN(SC_MAX_NAME_LEN) " %u %u",
                    r->name, &r->score, &r->duration_sec) != 3)
         {

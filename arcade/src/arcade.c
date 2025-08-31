@@ -156,7 +156,7 @@ void AR_LoadCheckpoint()
     ar_state.is_loading_checkpoint = true;
 }
 
-void AR_OnNewGameBegin(boolean is_nightmare)
+void AR_OnNewGame(boolean is_nightmare)
 {
     SDL_assert(!ar_state.is_playing);
     ar_state.is_playing = true;

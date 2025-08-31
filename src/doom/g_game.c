@@ -1827,7 +1827,7 @@ void G_DoNewGame (void)
     G_InitNew (d_skill, d_episode, d_map); 
     gameaction = ga_nothing;
 
-    AR_OnNewGameBegin(d_skill == sk_nightmare);
+    AR_OnNewGame(d_skill == sk_nightmare);
 }
 
 

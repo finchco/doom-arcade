@@ -3,7 +3,7 @@
 
 #include "../../src/doomtype.h"
 
-#define SC_NUM_RECORDS 8
+#define SC_NUM_RECORDS  8
 #define SC_MAX_NAME_LEN 3
 
 typedef struct
