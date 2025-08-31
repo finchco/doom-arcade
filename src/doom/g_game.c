@@ -94,9 +94,6 @@ void	G_DoVictory (void);
 void	G_DoWorldDone (void); 
 void	G_DoSaveGame (void);
 
-// [arcade] lives remaining
-extern int num_player_lives; // m_menu.c
-
 // Gamestate the last time G_Ticker was called.
 
 gamestate_t     oldgamestate;
@@ -740,8 +737,7 @@ void G_DoLoadLevel (void)
         players[consoleplayer].message = "Press escape to quit.";
     }
 
-    // [arcade]
-    AR_OnLevelLoaded();
+    AR_OnLevelLoaded(); // [arcade]
 }
 
 static void SetJoyButtons(unsigned int buttons_mask)
@@ -1326,18 +1322,7 @@ void G_DoReborn (int playernum)
 	 
     if (!netgame)
     {
-        // [arcade] can only reset level when there are lives remaining
-        if (--num_player_lives == 0)
-        {
-            AR_OnGameOver();
-            M_ClearMenus();
-            D_StartTitle();
-        }
-        else
-        {
-            // [arcade] load last checkpoint
-            AR_LoadCheckpoint();
-        }
+        AR_Respawn(); // [arcade]
     }
     else 
     {

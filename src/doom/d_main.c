@@ -136,21 +136,16 @@ void D_CheckNetGame(void);
 //
 void D_ProcessEvents (void)
 {
-    event_t*	ev;
-	
+    event_t *ev;
+
     // IF STORE DEMO, DO NOT ACCEPT INPUT
     if (storedemo)
         return;
-	
+
     while ((ev = D_PopEvent()) != NULL)
-    {
-	if (M_Responder (ev))
-	    continue;               // menu ate the event
-	G_Responder (ev);
-    }
+        if (!AR_Responder(ev) && !M_Responder(ev))
+            G_Responder(ev);
 }
-
-
 
 
 //
@@ -160,9 +155,6 @@ void D_ProcessEvents (void)
 
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
-
-// [arcade] coin slot
-extern int num_coins_inserted; // m_menu.c
 
 boolean D_Display (void)
 {
@@ -284,35 +276,11 @@ boolean D_Display (void)
                           W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
     }
 
-    if (gamestate == GS_LEVEL && !automapactive)
-    {
-        AR_DrawHud();
-    }
-
     // menus go directly to the screen
     M_Drawer ();          // menu is drawn even on top of everything
     NetUpdate ();         // send out any new accumulation
 
-    // [arcade] flash INSERT COIN or PRESS START during demo playback (attract mode)
-    if (demoplayback)
-    {
-        AR_DrawLeaderboard();
-
-        if (num_coins_inserted == 0)
-        {
-            if ((I_GetTime() & 16) == 0)
-            {
-                V_DrawPatchDirect(80, 8, W_CacheLumpName("INCOIN", PU_CACHE));
-            }
-        }
-        else
-        {
-            if ((I_GetTime() & 8) == 0)
-            {
-                V_DrawPatchDirect(80, 8, W_CacheLumpName("PRSTART", PU_CACHE));
-            }
-        }
-    }
+    AR_Drawer(); // [arcade]
 
     return wipe;
 }

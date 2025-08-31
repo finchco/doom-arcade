@@ -69,7 +69,7 @@ typedef enum
 } evtype_t;
 
 // Event structure.
-typedef struct
+typedef struct event_s
 {
     evtype_t type;
 
@@ -144,4 +144,3 @@ event_t *D_PopEvent(void);
 
 
 #endif
-

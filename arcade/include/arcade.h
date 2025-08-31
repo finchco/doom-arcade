@@ -6,19 +6,15 @@
 #include "m_fixed.h"
 
 typedef struct mobj_s mobj_t;
+typedef struct event_s event_t;
 
 void AR_Init(void);
-
-void AR_DrawHud(void);
-void AR_DrawLeaderboard(void);
-void AR_LoadCheckpoint(void);
-void AR_SaveCheckpoint(void);
-
+void AR_Drawer(void);
+boolean AR_Responder(event_t* ev);
 
 void AR_OnNewGameBegin(boolean is_nightmare);
 void AR_OnLevelLoaded(void);
-void AR_OnGameOver(void);
-
+void AR_Respawn(void);
 
 void AR_OnGetAmmo(ammotype_t ammo, int amount);
 void AR_OnGetArmor(int amount);

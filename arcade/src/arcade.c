@@ -1,19 +1,29 @@
 #include "../include/arcade.h"
 
 #include "ar_fonts.h"
-#include "sc_score.h"
 #include "ar_private.h"
+#include "doomkeys.h"
+#include "i_system.h"
+#include "m_controls.h"
+#include "sc_score.h"
 
 #include "../../src/i_swap.h"
 #include "../../src/i_video.h"
 #include "../../src/m_misc.h"
+#include "../../src/v_video.h"
+#include "../../src/w_wad.h"
+#include "../../src/z_zone.h"
 #include "../../src/doom/d_main.h"
+#include "../../src/doom/doomstat.h"
 #include "../../src/doom/g_game.h"
 #include "../../src/doom/p_saveg.h"
+#include "doom/s_sound.h"
 
 #include <SDL_assert.h>
 
 ar_state_t ar_state;
+
+extern void M_ClearMenus(void);
 
 void AR_Init(void)
 {
@@ -52,6 +62,73 @@ void AR_DrawLeaderboard(void)
         AR_DrawStringRightAlign(ARCADE_FONT_BIG, startx + 128, y, buf);
         y += 16;
     }
+}
+
+void AR_Drawer(void)
+{
+    // flash INSERT COIN or PRESS START during demo playback (attract mode)
+    if (demoplayback)
+    {
+        AR_DrawLeaderboard();
+
+        if (ar_state.coins == 0)
+        {
+            if ((I_GetTime() & 16) == 0)
+            {
+                V_DrawPatchDirect(80, 8, W_CacheLumpName("INCOIN", PU_CACHE));
+            }
+        }
+        else
+        {
+            if ((I_GetTime() & 8) == 0)
+            {
+                V_DrawPatchDirect(80, 8, W_CacheLumpName("PRSTART", PU_CACHE));
+            }
+        }
+    }
+    else if (gamestate == GS_LEVEL && !automapactive)
+    {
+        AR_DrawHud();
+    }
+}
+
+boolean AR_Responder(event_t *ev)
+{
+    if ((gamestate != GS_LEVEL || demoplayback) && ev->type == ev_keydown)
+    {
+        int key = ev->data1;
+
+        if (key == key_menu_activate)
+        {
+            I_Quit();
+        }
+        else if (key == KEYP_ENTER && ar_state.coins > 0)
+        {
+            // pressing enter starts game on hard
+            ar_state.lives = ar_state.coins * 3;
+            ar_state.coins = 0;
+            G_DeferedInitNew(sk_hard, 1, 1);
+            M_ClearMenus();
+            return true;
+        }
+        else if (key == '\\' && ar_state.coins > 0)
+        {
+            // pressing backslash starts game on nightmare
+            ar_state.lives = ar_state.coins * 3;
+            ar_state.coins = 0;
+            G_DeferedInitNew(sk_nightmare, 1, 1);
+            M_ClearMenus();
+            return true;
+        }
+        else if (key == 'q')
+        {
+            ++ar_state.coins;
+            S_StartSound(NULL, sfx_brssit);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void AR_SaveCheckpoint()
@@ -101,6 +178,19 @@ void AR_OnLevelLoaded(void)
     else
     {
         AR_SaveCheckpoint();
+    }
+}
+
+void AR_Respawn(void)
+{
+    if (--ar_state.lives == 0)
+    {
+        M_ClearMenus();
+        D_StartTitle();
+    }
+    else
+    {
+        AR_LoadCheckpoint();
     }
 }
 

@@ -49,7 +49,7 @@ void G_DoLoadGame (void);
 // Called by M_Responder.
 void G_SaveGame (int slot, char* description);
 
-// [arcade] checkpoints
+// [arcade] save game for checkpoints
 void G_QuickSaveImmediate(const char* name);
 
 
