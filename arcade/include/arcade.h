@@ -10,12 +10,13 @@ typedef struct event_s event_t;
 
 void AR_Init(void);
 void AR_Drawer(void);
+void AR_Ticker(void);
 boolean AR_Responder(event_t *ev);
 
-void AR_OnNewGame(boolean is_nightmare);
+void AR_OnPlayDemo(void);
 void AR_OnLevelLoaded(void);
-void AR_Respawn(void);
 
+void AR_OnDeath(void);
 void AR_OnGetAmmo(ammotype_t ammo, int amount);
 void AR_OnGetArmor(int amount);
 void AR_OnGetBackpack(void);

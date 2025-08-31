@@ -737,7 +737,10 @@ void G_DoLoadLevel (void)
         players[consoleplayer].message = "Press escape to quit.";
     }
 
-    AR_OnLevelLoaded(); // [arcade]
+    if (!demoplayback)
+    {
+        AR_OnLevelLoaded(); // [arcade]
+    }
 }
 
 static void SetJoyButtons(unsigned int buttons_mask)
@@ -1070,26 +1073,28 @@ void G_Ticker (void)
     oldgamestate = gamestate;
     
     // do main actions
-    switch (gamestate) 
-    { 
-      case GS_LEVEL: 
-	P_Ticker (); 
-	ST_Ticker (); 
-	AM_Ticker (); 
-	HU_Ticker ();            
-	break; 
-	 
-      case GS_INTERMISSION: 
-	WI_Ticker (); 
-	break; 
-			 
-      case GS_FINALE: 
-	F_Ticker (); 
-	break; 
- 
-      case GS_DEMOSCREEN: 
-	D_PageTicker (); 
-	break;
+    switch (gamestate)
+    {
+        case GS_LEVEL:
+            P_Ticker();
+            ST_Ticker();
+            AM_Ticker();
+            HU_Ticker();
+            AR_Ticker();
+            break;
+
+        case GS_INTERMISSION:
+            WI_Ticker();
+            break;
+
+        case GS_FINALE:
+            F_Ticker();
+            break;
+
+        case GS_DEMOSCREEN:
+            D_PageTicker();
+            AR_Ticker();
+            break;
     }        
 } 
  
@@ -1322,7 +1327,7 @@ void G_DoReborn (int playernum)
 	 
     if (!netgame)
     {
-        AR_Respawn(); // [arcade]
+        // [arcade] do nothing - arcade will load checkpoint
     }
     else 
     {
@@ -1826,8 +1831,6 @@ void G_DoNewGame (void)
     consoleplayer = 0;
     G_InitNew (d_skill, d_episode, d_map); 
     gameaction = ga_nothing;
-
-    AR_OnNewGame(d_skill == sk_nightmare);
 }
 
 
@@ -2263,6 +2266,9 @@ void G_DoPlayDemo (void)
 
     // [arcade] try to fix problems with wrapping tics
     G_ResetTics();
+
+    // [arcade] let arcade know to ignore level load events etc
+    AR_OnPlayDemo();
 
     lumpnum = W_GetNumForName(defdemoname);
     gameaction = ga_nothing;

@@ -27,6 +27,7 @@
 #include "p_local.h"
 
 #include "doomstat.h"
+#include "../arcade/include/arcade.h"
 
 
 
@@ -217,8 +218,9 @@ void P_DeathThink (player_t* player)
 	player->damagecount--;
 	
 
-    if (player->cmd.buttons & BT_USE)
-	player->playerstate = PST_REBORN;
+    // [arcade] arcade handles respawn
+    //if (player->cmd.buttons & BT_USE)
+    //  player->playerstate = PST_REBORN;
 }
 
 
@@ -375,5 +377,3 @@ void P_PlayerThink (player_t* player)
     else
 	player->fixedcolormap = 0;
 }
-
-

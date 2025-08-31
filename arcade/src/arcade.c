@@ -21,7 +21,7 @@
 
 #include <SDL_assert.h>
 
-ar_state_t ar_state;
+ar_state_t arcade;
 
 extern void M_ClearMenus(void);
 
@@ -31,20 +31,14 @@ void AR_Init(void)
     AR_InitFonts();
 }
 
-void AR_DrawHud(void)
+static void DrawHud(void)
 {
     char s[10] = {0};
-
-    if (!ar_state.is_playing)
-    {
-        return;
-    }
-
     SDL_itoa(SC_GetCurrentScore(), s, 9);
     AR_DrawStringRightAlign(ARCADE_FONT_BIG, SCREENWIDTH, -4, s);
 }
 
-void AR_DrawLeaderboard(void)
+static void DrawLeaderboard(void)
 {
     sc_record_t records[SC_NUM_RECORDS];
     int y;
@@ -64,14 +58,19 @@ void AR_DrawLeaderboard(void)
     }
 }
 
+static boolean ShouldDrawHud(void)
+{
+    return arcade.state == ARS_PLAY && gamestate == GS_LEVEL && !automapactive;
+}
+
 void AR_Drawer(void)
 {
     // flash INSERT COIN or PRESS START during demo playback (attract mode)
     if (demoplayback)
     {
-        AR_DrawLeaderboard();
+        DrawLeaderboard();
 
-        if (ar_state.coins == 0)
+        if (arcade.coins == 0)
         {
             if ((I_GetTime() & 16) == 0)
             {
@@ -86,115 +85,169 @@ void AR_Drawer(void)
             }
         }
     }
-    else if (gamestate == GS_LEVEL && !automapactive)
+
+    if (ShouldDrawHud())
     {
-        AR_DrawHud();
+        DrawHud();
+    }
+
+    if (arcade.state == ARS_REBOOT)
+    {
+        AR_DrawString(ARCADE_FONT_BIG, 64, 64, "GAME OVER");
+    }
+    else if (arcade.state == ARS_DEAD)
+    {
+        char s[128] = {0};
+        SDL_snprintf(s, SDL_arraysize(s) - 1, "REMAINING:%d", arcade.lives - 1);
+        AR_DrawString(ARCADE_FONT_BIG, 64, 64, s);
+    }
+}
+
+static void LoadCheckpoint(void);
+void AR_Ticker(void)
+{
+    arcade.timer = SDL_max(0, arcade.timer - 1);
+
+    if (arcade.state == ARS_REBOOT)
+    {
+        if (arcade.timer == 0)
+        {
+            arcade.state = ARS_ATTRACT;
+            M_ClearMenus();
+            D_StartTitle();
+        }
+    }
+    else if (arcade.state == ARS_BEGIN_LOAD_CHECKPOINT)
+    {
+        arcade.state = ARS_END_LOAD_CHECKPOINT;
+        LoadCheckpoint();
+    }
+    else if (arcade.state == ARS_START_GAME)
+    {
+        arcade.lives = arcade.coins * 3;
+        arcade.coins = 0;
+        G_DeferedInitNew(arcade.isnightmare ? sk_nightmare : sk_hard, 1, 1);
+        M_ClearMenus();
+        arcade.state = ARS_PLAY;
+        SC_BeginNewRecord(arcade.isnightmare);
     }
 }
 
 boolean AR_Responder(event_t *ev)
 {
-    if ((gamestate != GS_LEVEL || demoplayback) && ev->type == ev_keydown)
-    {
-        int key = ev->data1;
+    int key = ev->type == ev_keydown ? ev->data1 : 0;
+    int button = ev->type == ev_joystick ? ev->data1 : 0;
+    int mouse = ev->type == ev_mouse ? ev->data1 : 0;
 
-        if (key == key_menu_activate)
-        {
-            I_Quit();
-        }
-        else if (key == KEYP_ENTER && ar_state.coins > 0)
-        {
-            // pressing enter starts game on hard
-            ar_state.lives = ar_state.coins * 3;
-            ar_state.coins = 0;
-            G_DeferedInitNew(sk_hard, 1, 1);
-            M_ClearMenus();
-            return true;
-        }
-        else if (key == '\\' && ar_state.coins > 0)
-        {
-            // pressing backslash starts game on nightmare
-            ar_state.lives = ar_state.coins * 3;
-            ar_state.coins = 0;
-            G_DeferedInitNew(sk_nightmare, 1, 1);
-            M_ClearMenus();
-            return true;
-        }
-        else if (key == 'q')
-        {
-            ++ar_state.coins;
-            S_StartSound(NULL, sfx_brssit);
-            return true;
-        }
+    if (key == KEY_ESCAPE)
+    {
+        I_Quit();
+        // unreachable
     }
 
-    return false;
+    switch (arcade.state)
+    {
+        case ARS_ATTRACT:
+            if (key == 'q')
+            {
+                ++arcade.coins;
+                S_StartSound(NULL, sfx_brssit);
+            }
+            else if (key == '\\' || key == KEY_ENTER || key == KEYP_ENTER)
+            {
+                arcade.isnightmare = key == '\\';
+                arcade.state = ARS_START_GAME;
+            }
+            return true;
+
+        case ARS_START_GAME:
+            return false;
+
+        case ARS_PLAY:
+            return false;
+
+        case ARS_DEAD:
+            if (arcade.timer == 0 && (key || button || mouse))
+            {
+                arcade.state = ARS_BEGIN_LOAD_CHECKPOINT;
+            }
+            return true;
+
+        case ARS_BEGIN_LOAD_CHECKPOINT:
+            return true;
+
+        case ARS_END_LOAD_CHECKPOINT:
+            return true;
+
+        case ARS_ENTER_NAME:
+            if (key == KEYP_ENTER)
+            {
+                arcade.timer = TICRATE * 5;
+                arcade.state = ARS_REBOOT;
+            }
+            return true;
+
+        case ARS_REBOOT:
+            return true;
+
+        default:
+            return false;
+    }
+
+    SDL_assert(false); // unreachable
 }
 
-void AR_SaveCheckpoint()
+static void SaveCheckpoint()
 {
-    if (!ar_state.is_playing)
-    {
-        return;
-    }
-
+    SDL_assert(!demoplayback);
     SDL_assert(gameaction == ga_nothing);
     G_QuickSaveImmediate("arcade");
     SC_SaveCheckpoint();
 }
 
-void AR_LoadCheckpoint()
+static void LoadCheckpoint()
 {
-    if (!ar_state.is_playing)
-    {
-        return;
-    }
-
+    SDL_assert(!demoplayback);
     SDL_assert(gameaction == ga_nothing);
     G_LoadGame(P_SaveGameFile(0));
     SC_LoadCheckpoint();
-    ar_state.is_loading_checkpoint = true;
 }
 
-void AR_OnNewGame(boolean is_nightmare)
+void AR_OnPlayDemo(void)
 {
-    SDL_assert(!ar_state.is_playing);
-    ar_state.is_playing = true;
-    AR_SaveCheckpoint();
-    SC_BeginNewRecord(is_nightmare);
+    arcade.state = ARS_ATTRACT;
 }
 
 void AR_OnLevelLoaded(void)
 {
-    if (!ar_state.is_playing)
+    if (arcade.state == ARS_ATTRACT)
     {
         return;
     }
-
-    if (ar_state.is_loading_checkpoint)
+    else if (arcade.state == ARS_END_LOAD_CHECKPOINT)
     {
-        ar_state.is_loading_checkpoint = false;
+        arcade.state = ARS_PLAY;
     }
     else
     {
-        AR_SaveCheckpoint();
+        SDL_assert(arcade.state == ARS_PLAY || arcade.state == ARS_START_GAME);
+        SaveCheckpoint();
     }
 }
 
-void AR_Respawn(void)
+void AR_OnDeath(void)
 {
-    if (--ar_state.lives == 0)
+    if (arcade.state != ARS_PLAY)
     {
-        M_ClearMenus();
-        D_StartTitle();
+        return;
+    }
+    else if (--arcade.lives == 0)
+    {
+        arcade.state = ARS_ENTER_NAME;
     }
     else
     {
-        AR_LoadCheckpoint();
+        arcade.timer = TICRATE * 2;
+        arcade.state = ARS_DEAD;
     }
-}
-
-void AR_OnGameOver(void)
-{
-    ar_state.is_playing = false;
 }

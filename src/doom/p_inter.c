@@ -733,6 +733,7 @@ P_KillMobj
 	    AM_Stop ();
 	}
 
+        AR_OnDeath(); // [arcade]
     }
 
     if (target->health < -target->info->spawnhealth
