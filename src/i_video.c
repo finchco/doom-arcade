@@ -1130,10 +1130,12 @@ static void SetSDLVideoDriver(void)
     if (strcmp(video_driver, "") != 0)
     {
         char *env_string;
-
         env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
         putenv(env_string);
         free(env_string);
+
+        // [arcade] for some reason, putenv doesn't work in my debugger
+        SDL_SetHint(SDL_HINT_VIDEODRIVER, video_driver);
     }
 }
 
