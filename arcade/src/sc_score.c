@@ -147,13 +147,6 @@ void SC_GetRecords(sc_record_t out[8])
     memcpy(out, sc_records, sizeof(sc_records));
 }
 
-void AR_OnNextMap(int maxkills, int maxitems, int maxsecrets)
-{
-    sc_active_score.maxkills = maxkills;
-    sc_active_score.maxitems = maxitems;
-    sc_active_score.maxsecrets = maxsecrets;
-}
-
 void AR_OnGetAmmo(ammotype_t ammo, int amount)
 {
     sc_active_score.score += amount;

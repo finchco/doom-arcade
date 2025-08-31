@@ -1627,22 +1627,20 @@ void G_WorldDone (void)
     }
 } 
  
-void G_DoWorldDone (void) 
-{        
-    gamestate = GS_LEVEL; 
-    gamemap = wminfo.next+1; 
-    G_DoLoadLevel (); 
-    gameaction = ga_nothing; 
+void G_DoWorldDone (void)
+{
+    gamestate = GS_LEVEL;
+    gamemap = wminfo.next + 1;
+    G_DoLoadLevel();
+    gameaction = ga_nothing;
     viewactive = true;
 
-	// [arcade] try to fix problems with wrapping tics
-	G_ResetTics();
+    // [arcade] try to fix problems with wrapping tics
+    G_ResetTics();
 
-	// [arcade] save at start of map so it can be loaded on death
-	AR_SaveCheckpoint();
-	AR_OnNextMap(wminfo.maxkills, wminfo.maxitems, wminfo.maxsecret);
+    // [arcade] save at start of map so it can be loaded on death
+    AR_SaveCheckpoint();
 }
- 
 
 
 //
@@ -2268,8 +2266,8 @@ void G_DoPlayDemo (void)
     int demoversion;
     boolean olddemo = false;
 
-	// [arcade] try to fix problems with wrapping tics
-	G_ResetTics();
+    // [arcade] try to fix problems with wrapping tics
+    G_ResetTics();
 
     lumpnum = W_GetNumForName(defdemoname);
     gameaction = ga_nothing;

@@ -16,7 +16,6 @@ void AR_LoadCheckpoint(void);
 void AR_SaveCheckpoint(void);
 
 void AR_OnNewGameBegin(boolean is_nightmare);
-void AR_OnNextMap(int maxkills, int maxitems, int maxsecrets);
 void AR_OnGetAmmo(ammotype_t ammo, int amount);
 void AR_OnGetArmor(int amount);
 void AR_OnGetBackpack(void);
