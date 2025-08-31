@@ -2,12 +2,10 @@
 
 #include "ar_fonts.h"
 #include "ar_private.h"
-#include "doomkeys.h"
-#include "i_system.h"
-#include "m_controls.h"
 #include "sc_score.h"
-
+#include "../../src/doomkeys.h"
 #include "../../src/i_swap.h"
+#include "../../src/i_system.h"
 #include "../../src/i_video.h"
 #include "../../src/m_misc.h"
 #include "../../src/v_video.h"
@@ -17,11 +15,11 @@
 #include "../../src/doom/doomstat.h"
 #include "../../src/doom/g_game.h"
 #include "../../src/doom/p_saveg.h"
-#include "doom/s_sound.h"
+#include "../../src/doom/s_sound.h"
 
 #include <SDL_assert.h>
 
-ar_state_t arcade;
+struct ar_arcade_s arcade;
 
 extern void M_ClearMenus(void);
 
@@ -58,48 +56,74 @@ static void DrawLeaderboard(void)
     }
 }
 
-static boolean ShouldDrawHud(void)
+static void DrawCoinPrompt(void)
 {
-    return arcade.state == ARS_PLAY && gamestate == GS_LEVEL && !automapactive;
+    if (arcade.coins == 0)
+    {
+        if (I_GetTime() & 16)
+        {
+            V_DrawPatchDirect(80, 8, W_CacheLumpName("INCOIN", PU_CACHE));
+        }
+    }
+    else
+    {
+        if (I_GetTime() & 4)
+        {
+            V_DrawPatchDirect(80, 8, W_CacheLumpName("PRSTART", PU_CACHE));
+        }
+    }
 }
 
 void AR_Drawer(void)
 {
-    // flash INSERT COIN or PRESS START during demo playback (attract mode)
-    if (demoplayback)
+    switch (arcade.state)
     {
-        DrawLeaderboard();
-
-        if (arcade.coins == 0)
-        {
-            if ((I_GetTime() & 16) == 0)
+        case ARS_ATTRACT:
+            if (gamestate == GS_LEVEL)
             {
-                V_DrawPatchDirect(80, 8, W_CacheLumpName("INCOIN", PU_CACHE));
+                DrawLeaderboard();
+                DrawCoinPrompt();
             }
-        }
-        else
-        {
-            if ((I_GetTime() & 8) == 0)
+            break;
+
+        case ARS_START_GAME:
+            break;
+
+        case ARS_PLAY:
+            if (!automapactive)
             {
-                V_DrawPatchDirect(80, 8, W_CacheLumpName("PRSTART", PU_CACHE));
+                DrawHud();
             }
-        }
-    }
+            break;
 
-    if (ShouldDrawHud())
-    {
-        DrawHud();
-    }
+        case ARS_DEAD:
+            if (arcade.lives > 0)
+            {
+                char s[128] = {0};
+                SDL_snprintf(s, 127, "%d LIVES LEFT", arcade.lives - 1);
+                AR_DrawString(ARCADE_FONT_BIG, 64, 64, s);
+            }
+            else
+            {
+                AR_DrawString(ARCADE_FONT_BIG, 64, 64, "LAST LIFE");
+            }
+            break;
 
-    if (arcade.state == ARS_REBOOT)
-    {
-        AR_DrawString(ARCADE_FONT_BIG, 64, 64, "GAME OVER");
-    }
-    else if (arcade.state == ARS_DEAD)
-    {
-        char s[128] = {0};
-        SDL_snprintf(s, SDL_arraysize(s) - 1, "REMAINING:%d", arcade.lives - 1);
-        AR_DrawString(ARCADE_FONT_BIG, 64, 64, s);
+        case ARS_BEGIN_LOAD_CHECKPOINT:
+            break;
+
+        case ARS_END_LOAD_CHECKPOINT:
+            break;
+
+        case ARS_ENTER_NAME:
+            break;
+
+        case ARS_REBOOT:
+            AR_DrawString(ARCADE_FONT_BIG, 64, 64, "GAME OVER");
+            break;
+
+        default:
+            break;
     }
 }
 
@@ -108,28 +132,48 @@ void AR_Ticker(void)
 {
     arcade.timer = SDL_max(0, arcade.timer - 1);
 
-    if (arcade.state == ARS_REBOOT)
+    switch (arcade.state)
     {
-        if (arcade.timer == 0)
-        {
-            arcade.state = ARS_ATTRACT;
+        case ARS_ATTRACT:
+            break;
+
+        case ARS_START_GAME:
+            arcade.state = ARS_PLAY;
+            arcade.lives = arcade.coins * 3;
+            arcade.coins = 0;
+            G_DeferedInitNew(arcade.isnightmare ? sk_nightmare : sk_hard, 1, 1);
             M_ClearMenus();
-            D_StartTitle();
-        }
-    }
-    else if (arcade.state == ARS_BEGIN_LOAD_CHECKPOINT)
-    {
-        arcade.state = ARS_END_LOAD_CHECKPOINT;
-        LoadCheckpoint();
-    }
-    else if (arcade.state == ARS_START_GAME)
-    {
-        arcade.lives = arcade.coins * 3;
-        arcade.coins = 0;
-        G_DeferedInitNew(arcade.isnightmare ? sk_nightmare : sk_hard, 1, 1);
-        M_ClearMenus();
-        arcade.state = ARS_PLAY;
-        SC_BeginNewRecord(arcade.isnightmare);
+            SC_BeginNewRecord(arcade.isnightmare);
+            break;
+
+        case ARS_PLAY:
+            break;
+
+        case ARS_DEAD:
+            break;
+
+        case ARS_BEGIN_LOAD_CHECKPOINT:
+            arcade.state = ARS_END_LOAD_CHECKPOINT;
+            LoadCheckpoint();
+            break;
+
+        case ARS_END_LOAD_CHECKPOINT:
+            break;
+
+        case ARS_ENTER_NAME:
+            break;
+
+        case ARS_REBOOT:
+            if (arcade.timer == 0)
+            {
+                arcade.state = ARS_ATTRACT;
+                M_ClearMenus();
+                D_StartTitle();
+            }
+            break;
+
+        default:
+            break;
     }
 }
 
@@ -153,7 +197,7 @@ boolean AR_Responder(event_t *ev)
                 ++arcade.coins;
                 S_StartSound(NULL, sfx_brssit);
             }
-            else if (key == '\\' || key == KEY_ENTER || key == KEYP_ENTER)
+            else if (key == '\\' || key == KEY_ENTER)
             {
                 arcade.isnightmare = key == '\\';
                 arcade.state = ARS_START_GAME;

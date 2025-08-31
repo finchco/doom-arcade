@@ -11,17 +11,18 @@ enum ar_state_e
     ARS_END_LOAD_CHECKPOINT,
     ARS_ENTER_NAME,
     ARS_REBOOT,
+    ARS_COUNT
 };
 
-typedef struct
+struct ar_arcade_s
 {
     enum ar_state_e state;
     boolean isnightmare;
     int coins;
     int lives;
     int timer;
-} ar_state_t;
+};
 
-extern ar_state_t arcade;
+extern struct ar_arcade_s arcade;
 
 #endif
