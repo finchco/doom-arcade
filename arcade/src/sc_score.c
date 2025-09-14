@@ -7,6 +7,8 @@
 #include "../../src/m_misc.h"
 #include "../../src/doom/p_mobj.h"
 
+#include <SDL_assert.h>
+
 #define SC_RECORD_FILENAME "ardata/arcade_records.txt"
 
 #define SSCANF_FORMAT_STRING_LEN_(S) "%" #S "s"
@@ -27,14 +29,14 @@ static sc_score_t sc_active_score;
 static sc_score_t sc_checkpoint_score;
 
 static sc_record_t sc_default_records[SC_NUM_RECORDS] = {
-    {"REG", 5625, 113},
-    {"DMK", 4922, 96},
-    {"REG", 4543, 81},
-    {"REG", 4041, 80},
-    {"REG", 4025, 79},
-    {"REG", 2395, 66},
-    {"REG", 1433, 44},
-    {"REG", 617, 15},
+    {"REG", 10000000, 10000000},
+    {"DMK", 1000000, 1000000},
+    {"REG", 100000, 100000},
+    {"REG", 10000, 10000},
+    {"REG", 1000, 1000},
+    {"REG", 100, 100},
+    {"REG", 10, 10},
+    {"REG", 1, 1},
 };
 
 static void SC_LoadRecords(void)
@@ -72,13 +74,13 @@ static void SC_LoadRecords(void)
         {
             I_Error("Failed to read recoreds");
         }
-        if (sscanf(line, SSCANF_FORMAT_STRING_LEN(SC_MAX_NAME_LEN) " %u %u",
+        if (sscanf(line, SSCANF_FORMAT_STRING_LEN(SC_NAME_LEN) " %u %u",
                    r->name, &r->score, &r->duration_sec) != 3)
         {
             fclose(f);
             I_Error(SC_RECORD_FILENAME " line %i parse error\n", i);
         }
-        r->name[SC_MAX_NAME_LEN] = 0;
+        r->name[SC_NAME_LEN] = 0;
     }
 
     fclose(f);
@@ -100,32 +102,17 @@ void SC_BeginNewRecord(boolean is_nightmare)
     SC_SaveCheckpoint();
 }
 
-int SC_FinalizeRecord(char *player_name)
+void SC_FinalizeRecord(sc_record_t *newrecord)
 {
     // find the rank
     FILE *f;
-    int rank = 0;
-
-    for (; rank < SC_NUM_RECORDS; ++rank)
-    {
-        if (sc_active_score.score > sc_records[rank].score)
-        {
-            break;
-        }
-    }
-
-    if (rank == SC_NUM_RECORDS)
-    {
-        // did not place
-        return -1;
-    }
+    int rank = SC_GetCurrentRank();
+    SDL_assert(rank >= 0);
 
     // insert a record
     memmove(&sc_records[rank + 1], &sc_records[rank],
             sizeof(sc_record_t) * (SC_NUM_RECORDS - rank - 1));
-    sc_records[rank].score = sc_active_score.score;
-    sc_records[rank].duration_sec = 0; // TODO
-    M_StringCopy(sc_records[rank].name, player_name, SC_MAX_NAME_LEN);
+    memcpy(&sc_records[rank], newrecord, sizeof(sc_record_t));
 
     // save
     f = fopen(SC_RECORD_FILENAME, "wb");
@@ -140,8 +127,19 @@ int SC_FinalizeRecord(char *player_name)
         fprintf(f, "%s %u %u\n", r->name, r->score, r->duration_sec);
     }
     fclose(f);
+}
 
-    return rank;
+int SC_GetCurrentRank(void)
+{
+    for (int rank = 0; rank < SC_NUM_RECORDS; ++rank)
+    {
+        if (sc_active_score.score > sc_records[rank].score)
+        {
+            return rank;
+        }
+    }
+
+    return -1;
 }
 
 int SC_GetCurrentScore(void)

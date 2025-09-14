@@ -2,6 +2,7 @@
 
 #include "ar_fonts.h"
 #include "ar_private.h"
+#include "m_controls.h"
 #include "sc_score.h"
 #include "../../src/doomkeys.h"
 #include "../../src/i_swap.h"
@@ -18,15 +19,30 @@
 #include "../../src/doom/s_sound.h"
 
 #include <SDL_assert.h>
+#include <SDL_timer.h>
 
 struct ar_arcade_s arcade;
 
 extern void M_ClearMenus(void);
 
+static void ResetArcadeState(void)
+{
+    SDL_zerop(&arcade);
+    SDL_memcpy(arcade.record.name, "AAA", 3);
+}
+
 void AR_Init(void)
 {
+    ResetArcadeState();
     SC_Init();
     AR_InitFonts();
+}
+
+static void Reboot(void)
+{
+    ResetArcadeState();
+    arcade.timer = TICRATE * 5;
+    arcade.state = ARS_REBOOT;
 }
 
 static void DrawHud(void)
@@ -39,19 +55,18 @@ static void DrawHud(void)
 static void DrawLeaderboard(void)
 {
     sc_record_t records[SC_NUM_RECORDS];
-    int y;
-    const int startx = 88;
     char buf[16] = {0};
+    int y = 40;
 
     SC_GetRecords(records);
 
-    y = 40;
     for (int i = 0; i < SC_NUM_RECORDS; ++i)
     {
+        const int startx = 80;
         AR_DrawString(ARCADE_FONT_BIG, startx, y, records[i].name);
 
         SDL_itoa(records[i].score, buf, 10);
-        AR_DrawStringRightAlign(ARCADE_FONT_BIG, startx + 128, y, buf);
+        AR_DrawStringRightAlign(ARCADE_FONT_BIG, startx + 160, y, buf);
         y += 16;
     }
 }
@@ -74,6 +89,13 @@ static void DrawCoinPrompt(void)
     }
 }
 
+static void DrawNameEntry(void)
+{
+    AR_DrawStringCentered(ARCADE_FONT_BIG, 16, "NEW HIGH SCORE!");
+    AR_DrawStringCentered(ARCADE_FONT_SMALL, 32, "ENTER YOUR NAME");
+    AR_DrawStringCentered(ARCADE_FONT_BIG, 64, arcade.record.name);
+}
+
 void AR_Drawer(void)
 {
     switch (arcade.state)
@@ -86,7 +108,7 @@ void AR_Drawer(void)
             }
             break;
 
-        case ARS_START_GAME:
+        case ARS_BEGIN_PLAY:
             break;
 
         case ARS_PLAY:
@@ -97,10 +119,10 @@ void AR_Drawer(void)
             break;
 
         case ARS_DEAD:
-            if (arcade.lives > 0)
+            if (arcade.lives > 1)
             {
                 char s[128] = {0};
-                SDL_snprintf(s, 127, "%d LIVES LEFT", arcade.lives - 1);
+                SDL_snprintf(s, 127, "%d LIVES LEFT", arcade.lives);
                 AR_DrawString(ARCADE_FONT_BIG, 64, 64, s);
             }
             else
@@ -115,7 +137,14 @@ void AR_Drawer(void)
         case ARS_END_LOAD_CHECKPOINT:
             break;
 
+        case ARS_BEGIN_ENTER_NAME:
+            break;
+
         case ARS_ENTER_NAME:
+            DrawNameEntry();
+            break;
+
+        case ARS_END_ENTER_NAME:
             break;
 
         case ARS_REBOOT:
@@ -137,10 +166,11 @@ void AR_Ticker(void)
         case ARS_ATTRACT:
             break;
 
-        case ARS_START_GAME:
+        case ARS_BEGIN_PLAY:
             arcade.state = ARS_PLAY;
             arcade.lives = arcade.coins * 3;
             arcade.coins = 0;
+            arcade.game_start_time = SDL_GetTicks64();
             G_DeferedInitNew(arcade.isnightmare ? sk_nightmare : sk_hard, 1, 1);
             M_ClearMenus();
             SC_BeginNewRecord(arcade.isnightmare);
@@ -160,7 +190,21 @@ void AR_Ticker(void)
         case ARS_END_LOAD_CHECKPOINT:
             break;
 
+        case ARS_BEGIN_ENTER_NAME:
+            if (arcade.timer == 0)
+            {
+                arcade.state = ARS_ENTER_NAME;
+                arcade.record.duration_sec = (int)((SDL_GetTicks64() - arcade.game_start_time) / 1000ull);
+                arcade.record.score = SC_GetCurrentScore();
+            }
+            break;
+
         case ARS_ENTER_NAME:
+            break;
+
+        case ARS_END_ENTER_NAME:
+            SC_FinalizeRecord(&arcade.record);
+            Reboot();
             break;
 
         case ARS_REBOOT:
@@ -175,6 +219,15 @@ void AR_Ticker(void)
         default:
             break;
     }
+}
+
+static void AdjustNameChar(int ofs, char* p)
+{
+    char c = SDL_toupper(*p);
+    c += ofs;
+    if (c < 'A') c = 'Z';
+    else if (c > 'Z') c = 'A';
+    *p = c;
 }
 
 boolean AR_Responder(event_t *ev)
@@ -200,11 +253,11 @@ boolean AR_Responder(event_t *ev)
             else if (key == '\\' || key == KEY_ENTER)
             {
                 arcade.isnightmare = key == '\\';
-                arcade.state = ARS_START_GAME;
+                arcade.state = ARS_BEGIN_PLAY;
             }
             return true;
 
-        case ARS_START_GAME:
+        case ARS_BEGIN_PLAY:
             return false;
 
         case ARS_PLAY:
@@ -223,12 +276,33 @@ boolean AR_Responder(event_t *ev)
         case ARS_END_LOAD_CHECKPOINT:
             return true;
 
+        case ARS_BEGIN_ENTER_NAME:
+            return true;
+
         case ARS_ENTER_NAME:
-            if (key == KEYP_ENTER)
+            if (key == key_up)
             {
-                arcade.timer = TICRATE * 5;
-                arcade.state = ARS_REBOOT;
+                AdjustNameChar(1, &arcade.record.name[arcade.counter]);
             }
+            else if (key == key_down)
+            {
+                AdjustNameChar(-1, &arcade.record.name[arcade.counter]);
+            }
+            else if (key == key_strafeleft)
+            {
+                arcade.counter = SDL_max(0, arcade.counter - 1);
+            }
+            else if (key == key_straferight)
+            {
+                arcade.counter = SDL_min(SC_NAME_LEN - 1, arcade.counter + 1);
+            }
+            else if (key == KEY_ENTER)
+            {
+                arcade.state = ARS_END_ENTER_NAME;
+            }
+            return true;
+
+        case ARS_END_ENTER_NAME:
             return true;
 
         case ARS_REBOOT:
@@ -274,7 +348,7 @@ void AR_OnLevelLoaded(void)
     }
     else
     {
-        SDL_assert(arcade.state == ARS_PLAY || arcade.state == ARS_START_GAME);
+        SDL_assert(arcade.state == ARS_PLAY || arcade.state == ARS_BEGIN_PLAY);
         SaveCheckpoint();
     }
 }
@@ -287,7 +361,15 @@ void AR_OnDeath(void)
     }
     else if (--arcade.lives == 0)
     {
-        arcade.state = ARS_ENTER_NAME;
+        if (SC_GetCurrentRank() >= 0)
+        {
+            arcade.timer = TICRATE * 2;
+            arcade.state = ARS_BEGIN_ENTER_NAME;
+        }
+        else
+        {
+            Reboot();
+        }
     }
     else
     {
