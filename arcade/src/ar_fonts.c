@@ -213,6 +213,15 @@ static void LoadBMFont(font_t *font)
     printf("Loading font: %s\n", font->name);
     LoadBMFontMeta(font);
     LoadBMFontPixelsTGA(font);
+
+    for (int i = 0; i < 256; ++i)
+    {
+        if (font->glyphs[i].w == 0)
+        {
+            // temp hack for missing space glyph
+            font->glyphs[i].w = font->glyphs['W'].w;
+        }
+    }
 }
 
 static int CalcStringWidth(font_t *font, const char *str)
@@ -297,9 +306,9 @@ void AR_DrawString(ar_font_e fontid, // NOLINT(*-easily-swappable-parameters)
         outx += g->w;
     }
 }
-void AR_DrawStringRightAlign(
-    ar_font_e fontid, // NOLINT(*-easily-swappable-parameters)
-    int startx, int starty, const char *str)
+
+void AR_DrawStringRightAlign(ar_font_e fontid, int startx, int starty,
+                             const char *str)
 {
     if (fontid >= NUM_ARCADE_FONTS)
     {
@@ -308,4 +317,17 @@ void AR_DrawStringRightAlign(
 
     startx -= CalcStringWidth(&fonts[fontid], str);
     AR_DrawString(fontid, startx, starty, str);
+}
+
+void AR_DrawStringCentered(ar_font_e fontid, int starty, const char *str)
+{
+    int w;
+    if (fontid >= NUM_ARCADE_FONTS)
+    {
+        I_Error("AR_DrawStringRightAlign: bad font");
+    }
+
+    w = CalcStringWidth(&fonts[fontid], str);
+    w = (SCREENWIDTH - w) / 2;
+    AR_DrawString(fontid, w, starty, str);
 }

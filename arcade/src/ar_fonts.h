@@ -12,4 +12,6 @@ void AR_InitFonts(void);
 void AR_DrawString(ar_font_e fontid, int startx, int starty, const char *str);
 void AR_DrawStringRightAlign(ar_font_e fontid, int startx, int starty,
                              const char *str);
+void AR_DrawStringCentered(ar_font_e fontid, int starty, const char *str);
+
 #endif
